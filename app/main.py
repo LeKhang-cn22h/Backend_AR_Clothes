@@ -12,12 +12,15 @@ from config import settings
 from dependencies import init_service
 from routers.tryon import router as tryon_router
 from routers.images import router as images_router
+from routers.store import router as store_router
+from core.database import init_db
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # Backend_AR_Clothes/
 sys.path = [p for p in sys.path if "CatVTON" not in p]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()
     loop = get_event_loop()
     await loop.run_in_executor(None, init_service)
     yield
@@ -35,6 +38,7 @@ app.add_middleware(
 
 app.include_router(tryon_router)
 app.include_router(images_router)
+app.include_router(store_router)
 
 
 @app.get("/health")
