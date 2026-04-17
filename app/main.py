@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from dependencies import init_service
 from routers.tryon import router as tryon_router
+from routers.images import router as images_router
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # Backend_AR_Clothes/
 sys.path = [p for p in sys.path if "CatVTON" not in p]
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(tryon_router)
+app.include_router(images_router)
 
 
 @app.get("/health")

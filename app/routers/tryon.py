@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+import base64
 import io
+import time
 from asyncio import get_event_loop
 
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
-from fastapi.responses import StreamingResponse
 from PIL import Image
 
 from dependencies import get_catvton_service
 from services.catvton import CatVTONService
+import services.cloudinary_service as cloud
 
 router = APIRouter(prefix="/tryon")
 
@@ -63,7 +65,29 @@ async def tryon(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Loi xu ly anh: {e}")
 
-    buf = io.BytesIO()
-    result.save(buf, format="JPEG")
-    buf.seek(0)
-    return StreamingResponse(buf, media_type="image/jpeg")
+    width, height = result.size
+    timestamp = int(time.time())
+    public_id = f"tryon_results/{timestamp}_{seed}"
+
+    try:
+        upload_info = cloud.upload_image(result, folder="tryon_results", public_id=public_id)
+        return {
+            "image_url": upload_info["url"],
+            "public_id": upload_info["public_id"],
+            "width": width,
+            "height": height,
+            "created_at": upload_info["created_at"],
+        }
+    except Exception:
+        buf = io.BytesIO()
+        result.save(buf, format="JPEG")
+        b64 = base64.b64encode(buf.getvalue()).decode()
+        return {
+            "image_url": None,
+            "public_id": None,
+            "width": width,
+            "height": height,
+            "created_at": None,
+            "image_base64": f"data:image/jpeg;base64,{b64}",
+            "warning": "Upload Cloudinary that bai, tra ve anh dang base64",
+        }

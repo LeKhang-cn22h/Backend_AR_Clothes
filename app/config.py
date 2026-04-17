@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     PORT:               int   = 8000
     CORS_ORIGINS:       list  = ["http://localhost:5173", "http://localhost:3000"]
 
+    CLOUDINARY_CLOUD_NAME:   str = ""
+    CLOUDINARY_API_KEY:      str = ""
+    CLOUDINARY_API_SECRET:   str = ""
+
     class Config:
         env_file = ".env"
 
