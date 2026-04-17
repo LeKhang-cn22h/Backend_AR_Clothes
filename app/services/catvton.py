@@ -29,6 +29,8 @@ class CatVTONService:
 
         use_cuda = torch.cuda.is_available()
         device = "cuda" if use_cuda else "cpu"
+        print(f"[DEBUG] CUDA available: {use_cuda}")
+        print(f"[DEBUG] Device: {device}")
 
         weight_dtype = init_weight_dtype(settings.MIXED_PRECISION)
 
@@ -42,7 +44,13 @@ class CatVTONService:
             weight_dtype=weight_dtype,
             use_tf32=settings.ALLOW_TF32,
             device=device,
+            skip_safety_check=True,
         )
+        # try:
+        #     self.pipeline.unet.enable_xformers_memory_efficient_attention()
+        #     print("[CatVTON] xFormers enabled!")
+        # except Exception as e:
+        #     print(f"[CatVTON] xFormers not available: {e}")
 
         densepose_ckpt = os.path.join(settings.CATVTON_CKPT_PATH, "DensePose")
         schp_ckpt = os.path.join(settings.CATVTON_CKPT_PATH, "SCHP")
@@ -75,14 +83,22 @@ class CatVTONService:
     ) -> Image.Image:
         size = (settings.IMAGE_WIDTH, settings.IMAGE_HEIGHT)
 
-        person_image = resize_and_crop(person_image.convert("RGB"), size)
-        cloth_image = resize_and_padding(cloth_image.convert("RGB"), size)
+        person_image = person_image.convert("RGB").resize((768, 1024), Image.LANCZOS)
+        cloth_image  = cloth_image.convert("RGB").resize((768, 1024), Image.LANCZOS)
 
         mask = self.automasker(person_image, cloth_type)["mask"]
+
+        print(f"[DEBUG] person size: {person_image.size}")
+        print(f"[DEBUG] mask type: {type(mask)}")
+        print(f"[DEBUG] mask size: {mask.size if hasattr(mask, 'size') else mask.shape}")
+
         mask = self.mask_processor.blur(mask, blur_factor=9)
 
+        print(f"[DEBUG] mask after blur type: {type(mask)}")
+        print(f"[DEBUG] mask after blur shape: {mask.shape if hasattr(mask, 'shape') else mask.size}")
         generator = torch.Generator(device=self._device).manual_seed(seed)
-
+        print(f"[DEBUG] Running on: {self._device}")
+        print(f"[DEBUG] Pipeline device: {next(self.pipeline.unet.parameters()).device}")
         result = self.pipeline(
             image=person_image,
             condition_image=cloth_image,
@@ -90,6 +106,8 @@ class CatVTONService:
             num_inference_steps=num_steps,
             guidance_scale=guidance,
             generator=generator,
+            height=1024,    
+            width=768,
         )[0]
 
         return result

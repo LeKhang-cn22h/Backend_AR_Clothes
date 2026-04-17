@@ -5,6 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
+CatVTON/
+detectron2/
+model_cache/
 
 # Distribution / packaging
 .Python
