@@ -1,0 +1,15 @@
+[33m4f91fe4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m docs: update project requirements
+[33mda40a40[m feat: add Store API endpoints (POST/GET/PATCH/DELETE)
+[33m2eec62c[m feat: add StoreService with business logic
+[33m9278307[m feat: add StoreRepository with async CRUD queries
+[33m57b13c6[m feat: add Store Pydantic schemas (create/update/response)
+[33m3dc3ffd[m feat: add Store ORM model
+[33m9e9c91a[m feat: add async database engine and session (Neon PostgreSQL)
+[33m601daba[m feat: add database config and init_db to startup
+[33m9cfae97[m feat: crud cloudinary image AI gen cloth
+[33m714d7c5[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: catvton AI gen image wear cloth
+[33m2cc6b35[m docs: add project documentation
+[33m91083d3[m feat: setup CatVTON FastAPI service
+[33me2b5215[m setup config BE
+[33m411eb1f[m init backend
+[33m21b3df0[m Initial commit
