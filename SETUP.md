@@ -1,5 +1,45 @@
 #  Setup Backend AR Clothes
+## Clone các repo cần thiết
 
+Trước khi setup, clone các repo sau vào thư mục gốc của project:
+
+### 1. CatVTON (Virtual Try-On model)
+```bash
+git clone https://github.com/Zheng-Chong/CatVTON.git
+```
+
+### 2. DensePose
+```bash
+git clone https://github.com/facebookresearch/detectron2.git densepose_
+```
+> Hoặc nếu dùng bản riêng:
+```bash
+git clone https://github.com/facebookresearch/DensePose.git densepose_
+```
+
+### 3. Detectron2
+```bash
+git clone https://github.com/facebookresearch/detectron2.git
+cd detectron2
+pip install -e .
+cd ..
+```
+
+---
+
+> **Lưu ý:** Sau khi clone xong, cấu trúc thư mục sẽ như sau:
+> ```
+> BACKEND_AR_CLOTHES/
+> ├── app/
+> ├── CatVTON/
+> ├── densepose_/
+> ├── detectron2/
+> ├── model_cache/
+> ├── .env
+> ├── download_models.py
+> ├── requirements.txt
+> └── SETUP.md
+> ```
 ## 1. Tạo virtual environment
 
 ```bash
