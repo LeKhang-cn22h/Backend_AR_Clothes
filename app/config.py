@@ -28,7 +28,8 @@ class Settings(BaseSettings):
     CLOUDINARY_API_URL:        str = ""
 
     DATABASE_URL:            str = ""
-
+    GLB_STATIC_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "models")
+    BASE_URL: str = "http://localhost:8000"
     class Config:
         env_file = ".env"
 
