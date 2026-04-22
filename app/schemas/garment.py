@@ -17,11 +17,12 @@ class GarmentUpdate(BaseModel):
 
 
 class GarmentResponse(BaseModel):
-    id: int
+    id: intx
     name: str
     description: Optional[str]
     model_url: str
     public_id: str
+    local_url:Optional[str]
     item_index: Optional[int]
     created_at: datetime
     updated_at: datetime

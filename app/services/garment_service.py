@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+import os
+import shutil
 import cloudinary
 import cloudinary.uploader
 from fastapi import UploadFile, HTTPException
@@ -9,7 +10,7 @@ from config import settings
 from models.garment import Garment
 from schemas.garment import GarmentCreate, GarmentUpdate
 
-LENS_ID = "YOUR_LENS_ID"   # ← điền sau khi publish Lens Studio
+LENS_ID = "YOUR_LENS_ID"   
 GLB_FOLDER = "ar_garments"
 
 cloudinary.config(
@@ -37,10 +38,25 @@ def _upload_glb(file: UploadFile) -> dict:
         "public_id": result["public_id"],
     }
 
+def _save_glb_local(file:UploadFile,filename:str)->str:
+    "Lưu file .glb vào thư mục local, trả về đường dẫn file"
+    os.makedirs(settings.GLB_STATIC_DIR,exist_ok=True)
+    safe_name= filename.replace(" ", "_")
+    dest_path=os.path.join(settings.GLB_STATIC_DIR,safe_name)
+    file.file.seek(0)
+    with open(dest_path,"wb") as f:
+        shutil.copyfileobj(file.file,f)
+    
+    return f"{settings.BASE_URL}/static/models/{safe_name}"
 
 def _delete_glb(public_id: str):
     cloudinary.uploader.destroy(public_id, resource_type="raw")
 
+def _delete_glb_local(file_name:str):
+    "xóa file .glb trên local dựa vào name"
+    path =os.path.join(settings.GLB_STATIC_DIR, file_name)
+    if os.path.exists(path):
+        os.remove(path)
 
 # ── CREATE ────────────────────────────────────────────────────────────────────
 
@@ -50,12 +66,14 @@ async def create_garment(
     file: UploadFile,
 ) -> Garment:
     uploaded = _upload_glb(file)
+    local_url=_save_glb_local(file,file.filename)
 
     garment = Garment(
         name=data.name,
         description=data.description,
         item_index=data.item_index,
         model_url=uploaded["url"],
+        local_url=local_url,
         public_id=uploaded["public_id"],
     )
     db.add(garment)
@@ -98,10 +116,19 @@ async def update_garment(
 
     # Nếu có file mới → xóa file cũ trên Cloudinary rồi upload mới
     if file:
+        # Xóa file cũ
         _delete_glb(garment.public_id)
+        if garment.local_url:
+            old_filename = garment.local_url.split("/")[-1]
+            _delete_glb_local(old_filename)
+
+        # Upload file mới
         uploaded = _upload_glb(file)
+        local_url = _save_glb_local(file, file.filename)
+
         garment.model_url = uploaded["url"]
         garment.public_id = uploaded["public_id"]
+        garment.local_url = local_url
 
     await db.commit()
     await db.refresh(garment)
@@ -122,6 +149,7 @@ async def delete_garment(db: AsyncSession, garment_id: int) -> dict:
 
 async def get_lens_link(db: AsyncSession, garment_id: int) -> dict:
     garment = await get_garment_by_id(db, garment_id)
+    model_url=garment.local_url or garment.model_url
     lens_url = (
         f"https://www.snapchat.com/lens/{LENS_ID}"
         f"?model_url={garment.model_url}"
