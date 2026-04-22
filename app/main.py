@@ -7,6 +7,7 @@ import os
 import torch
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from config import settings
 from dependencies import init_service
@@ -23,6 +24,7 @@ sys.path = [p for p in sys.path if "CatVTON" not in p]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    os.makedirs(settings.GLB_STATIC_DIR,exist_ok=True)
     loop = get_event_loop()
     await loop.run_in_executor(None, init_service)
     yield
@@ -36,6 +38,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+app.mount(
+    "/static/models",
+    StaticFiles(directory=settings.GLB_STATIC_DIR),
+    name="glb_models"
 )
 
 app.include_router(tryon_router)
