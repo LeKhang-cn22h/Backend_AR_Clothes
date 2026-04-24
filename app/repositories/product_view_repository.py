@@ -17,7 +17,9 @@ class ProductViewRepository:
         return view
 
     async def get_by_id(self, id: int) -> Optional[ProductView]:
-        result = await self.db.execute(select(ProductView).where(ProductView.id == id))
+        result = await self.db.execute(
+            select(ProductView).where(ProductView.id == id, ProductView.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(
@@ -28,7 +30,7 @@ class ProductViewRepository:
         skip: int = 0,
         limit: int = 20,
     ) -> list[ProductView]:
-        query = select(ProductView)
+        query = select(ProductView).where(ProductView.is_deleted == False)
         if firestore_product_id:
             query = query.where(ProductView.firestore_product_id == firestore_product_id)
         if user_id is not None:
@@ -42,7 +44,8 @@ class ProductViewRepository:
     async def count_by_product(self, firestore_product_id: str) -> int:
         result = await self.db.execute(
             select(func.count()).select_from(ProductView).where(
-                ProductView.firestore_product_id == firestore_product_id
+                ProductView.firestore_product_id == firestore_product_id,
+                ProductView.is_deleted == False,
             )
         )
         return result.scalar_one()
@@ -50,6 +53,7 @@ class ProductViewRepository:
     async def get_top_products(self, limit: int = 10) -> list[dict]:
         query = (
             select(ProductView.firestore_product_id, func.count(ProductView.id).label("view_count"))
+            .where(ProductView.is_deleted == False)
             .group_by(ProductView.firestore_product_id)
             .order_by(func.count(ProductView.id).desc())
             .limit(limit)
@@ -64,12 +68,14 @@ class ProductViewRepository:
         view = await self.get_by_id(id)
         if not view:
             return False
-        await self.db.delete(view)
+        view.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self) -> int:
-        result = await self.db.execute(select(func.count()).select_from(ProductView))
+        result = await self.db.execute(
+            select(func.count()).select_from(ProductView).where(ProductView.is_deleted == False)
+        )
         return result.scalar_one()
 
     async def update(self, id: int, **kwargs) -> Optional[ProductView]:

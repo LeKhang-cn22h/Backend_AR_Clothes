@@ -17,7 +17,9 @@ class ARSessionRepository:
         return session
 
     async def get_by_id(self, id: int) -> Optional[ARSession]:
-        result = await self.db.execute(select(ARSession).where(ARSession.id == id))
+        result = await self.db.execute(
+            select(ARSession).where(ARSession.id == id, ARSession.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(
@@ -28,7 +30,7 @@ class ARSessionRepository:
         skip: int = 0,
         limit: int = 20,
     ) -> list[ARSession]:
-        query = select(ARSession)
+        query = select(ARSession).where(ARSession.is_deleted == False)
         if user_id is not None:
             query = query.where(ARSession.user_id == user_id)
         if garment_id is not None:
@@ -53,12 +55,12 @@ class ARSessionRepository:
         session = await self.get_by_id(id)
         if not session:
             return False
-        await self.db.delete(session)
+        session.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self, converted: Optional[bool] = None) -> int:
-        query = select(func.count()).select_from(ARSession)
+        query = select(func.count()).select_from(ARSession).where(ARSession.is_deleted == False)
         if converted is not None:
             query = query.where(ARSession.converted == converted)
         result = await self.db.execute(query)
@@ -67,6 +69,7 @@ class ARSessionRepository:
     async def get_top_garments(self, limit: int = 5) -> list[dict]:
         query = (
             select(ARSession.garment_id, func.count(ARSession.id).label("session_count"))
+            .where(ARSession.is_deleted == False)
             .group_by(ARSession.garment_id)
             .order_by(func.count(ARSession.id).desc())
             .limit(limit)

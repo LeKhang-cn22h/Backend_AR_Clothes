@@ -17,20 +17,26 @@ class UserRepository:
         return user
 
     async def get_by_id(self, id: int) -> Optional[User]:
-        result = await self.db.execute(select(User).where(User.id == id))
+        result = await self.db.execute(
+            select(User).where(User.id == id, User.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_by_firebase_uid(self, firebase_uid: str) -> Optional[User]:
-        result = await self.db.execute(select(User).where(User.firebase_uid == firebase_uid))
+        result = await self.db.execute(
+            select(User).where(User.firebase_uid == firebase_uid, User.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> Optional[User]:
-        result = await self.db.execute(select(User).where(User.email == email))
+        result = await self.db.execute(
+            select(User).where(User.email == email, User.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(self, skip: int = 0, limit: int = 20) -> list[User]:
         result = await self.db.execute(
-            select(User).offset(skip).limit(limit).order_by(User.id)
+            select(User).where(User.is_deleted == False).offset(skip).limit(limit).order_by(User.id)
         )
         return list(result.scalars().all())
 
@@ -48,10 +54,12 @@ class UserRepository:
         user = await self.get_by_id(id)
         if not user:
             return False
-        await self.db.delete(user)
+        user.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self) -> int:
-        result = await self.db.execute(select(func.count()).select_from(User))
+        result = await self.db.execute(
+            select(func.count()).select_from(User).where(User.is_deleted == False)
+        )
         return result.scalar_one()

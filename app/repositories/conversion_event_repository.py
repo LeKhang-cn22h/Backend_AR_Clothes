@@ -18,7 +18,9 @@ class ConversionEventRepository:
         return event
 
     async def get_by_id(self, id: int) -> Optional[ConversionEvent]:
-        result = await self.db.execute(select(ConversionEvent).where(ConversionEvent.id == id))
+        result = await self.db.execute(
+            select(ConversionEvent).where(ConversionEvent.id == id, ConversionEvent.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(
@@ -29,7 +31,7 @@ class ConversionEventRepository:
         skip: int = 0,
         limit: int = 20,
     ) -> list[ConversionEvent]:
-        query = select(ConversionEvent)
+        query = select(ConversionEvent).where(ConversionEvent.is_deleted == False)
         if firestore_product_id:
             query = query.where(ConversionEvent.firestore_product_id == firestore_product_id)
         if event_type:
@@ -43,7 +45,10 @@ class ConversionEventRepository:
     async def get_funnel(self, firestore_product_id: str) -> dict:
         query = (
             select(ConversionEvent.event_type, func.count(ConversionEvent.id))
-            .where(ConversionEvent.firestore_product_id == firestore_product_id)
+            .where(
+                ConversionEvent.firestore_product_id == firestore_product_id,
+                ConversionEvent.is_deleted == False,
+            )
             .group_by(ConversionEvent.event_type)
         )
         result = await self.db.execute(query)
@@ -65,7 +70,10 @@ class ConversionEventRepository:
         thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
         query = (
             select(ConversionEvent.event_type, func.count(ConversionEvent.id))
-            .where(ConversionEvent.created_at >= thirty_days_ago)
+            .where(
+                ConversionEvent.created_at >= thirty_days_ago,
+                ConversionEvent.is_deleted == False,
+            )
             .group_by(ConversionEvent.event_type)
         )
         result = await self.db.execute(query)
@@ -81,12 +89,14 @@ class ConversionEventRepository:
         event = await self.get_by_id(id)
         if not event:
             return False
-        await self.db.delete(event)
+        event.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self) -> int:
-        result = await self.db.execute(select(func.count()).select_from(ConversionEvent))
+        result = await self.db.execute(
+            select(func.count()).select_from(ConversionEvent).where(ConversionEvent.is_deleted == False)
+        )
         return result.scalar_one()
 
     async def update(self, id: int, **kwargs) -> Optional[ConversionEvent]:

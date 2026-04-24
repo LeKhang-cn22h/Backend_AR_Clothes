@@ -17,7 +17,9 @@ class ReviewRepository:
         return review
 
     async def get_by_id(self, id: int) -> Optional[Review]:
-        result = await self.db.execute(select(Review).where(Review.id == id))
+        result = await self.db.execute(
+            select(Review).where(Review.id == id, Review.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_by_user_and_product(self, user_id: int, firestore_product_id: str) -> Optional[Review]:
@@ -25,6 +27,7 @@ class ReviewRepository:
             select(Review).where(
                 Review.user_id == user_id,
                 Review.firestore_product_id == firestore_product_id,
+                Review.is_deleted == False,
             )
         )
         return result.scalar_one_or_none()
@@ -37,7 +40,7 @@ class ReviewRepository:
         skip: int = 0,
         limit: int = 20,
     ) -> list[Review]:
-        query = select(Review)
+        query = select(Review).where(Review.is_deleted == False)
         if firestore_product_id:
             query = query.where(Review.firestore_product_id == firestore_product_id)
         if user_id is not None:
@@ -62,12 +65,12 @@ class ReviewRepository:
         review = await self.get_by_id(id)
         if not review:
             return False
-        await self.db.delete(review)
+        review.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self, firestore_product_id: Optional[str] = None) -> int:
-        query = select(func.count()).select_from(Review)
+        query = select(func.count()).select_from(Review).where(Review.is_deleted == False)
         if firestore_product_id:
             query = query.where(Review.firestore_product_id == firestore_product_id)
         result = await self.db.execute(query)
@@ -76,7 +79,8 @@ class ReviewRepository:
     async def get_stats(self, firestore_product_id: str) -> dict:
         agg = await self.db.execute(
             select(func.avg(Review.rating), func.count(Review.id)).where(
-                Review.firestore_product_id == firestore_product_id
+                Review.firestore_product_id == firestore_product_id,
+                Review.is_deleted == False,
             )
         )
         row = agg.one()
@@ -85,7 +89,10 @@ class ReviewRepository:
 
         dist_result = await self.db.execute(
             select(Review.rating, func.count(Review.id))
-            .where(Review.firestore_product_id == firestore_product_id)
+            .where(
+                Review.firestore_product_id == firestore_product_id,
+                Review.is_deleted == False,
+            )
             .group_by(Review.rating)
         )
         distribution = {str(i): 0 for i in range(1, 6)}

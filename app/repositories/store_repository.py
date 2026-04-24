@@ -21,11 +21,15 @@ class StoreRepository:
         return store
 
     async def get_by_id(self, id: uuid.UUID) -> Optional[Store]:
-        result = await self.db.execute(select(Store).where(Store.id == id))
+        result = await self.db.execute(
+            select(Store).where(Store.id == id, Store.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> Optional[Store]:
-        result = await self.db.execute(select(Store).where(Store.email == email))
+        result = await self.db.execute(
+            select(Store).where(Store.email == email, Store.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(
@@ -34,7 +38,7 @@ class StoreRepository:
         limit: int = 10,
         is_active: Optional[bool] = None,
     ) -> list[Store]:
-        query = select(Store)
+        query = select(Store).where(Store.is_deleted == False)
         if is_active is not None:
             query = query.where(Store.is_active == is_active)
         query = query.offset(skip).limit(limit).order_by(Store.created_at.desc())
@@ -56,12 +60,12 @@ class StoreRepository:
         store = await self.get_by_id(id)
         if not store:
             return False
-        await self.db.delete(store)
+        store.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self, is_active: Optional[bool] = None) -> int:
-        query = select(func.count()).select_from(Store)
+        query = select(func.count()).select_from(Store).where(Store.is_deleted == False)
         if is_active is not None:
             query = query.where(Store.is_active == is_active)
         result = await self.db.execute(query)

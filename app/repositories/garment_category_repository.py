@@ -17,12 +17,18 @@ class GarmentCategoryRepository:
         return category
 
     async def get_by_id(self, id: int) -> Optional[GarmentCategory]:
-        result = await self.db.execute(select(GarmentCategory).where(GarmentCategory.id == id))
+        result = await self.db.execute(
+            select(GarmentCategory).where(GarmentCategory.id == id, GarmentCategory.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all(self, skip: int = 0, limit: int = 100) -> list[GarmentCategory]:
         result = await self.db.execute(
-            select(GarmentCategory).offset(skip).limit(limit).order_by(GarmentCategory.id)
+            select(GarmentCategory)
+            .where(GarmentCategory.is_deleted == False)
+            .offset(skip)
+            .limit(limit)
+            .order_by(GarmentCategory.id)
         )
         return list(result.scalars().all())
 
@@ -40,10 +46,12 @@ class GarmentCategoryRepository:
         category = await self.get_by_id(id)
         if not category:
             return False
-        await self.db.delete(category)
+        category.is_deleted = True
         await self.db.commit()
         return True
 
     async def count(self) -> int:
-        result = await self.db.execute(select(func.count()).select_from(GarmentCategory))
+        result = await self.db.execute(
+            select(func.count()).select_from(GarmentCategory).where(GarmentCategory.is_deleted == False)
+        )
         return result.scalar_one()

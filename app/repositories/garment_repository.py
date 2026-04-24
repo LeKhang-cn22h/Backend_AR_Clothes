@@ -9,5 +9,7 @@ class GarmentRepository:
         self.db = db
 
     async def get_by_id(self, id: int) -> Optional[Garment]:
-        result = await self.db.execute(select(Garment).where(Garment.id == id))
+        result = await self.db.execute(
+            select(Garment).where(Garment.id == id, Garment.is_deleted == False)
+        )
         return result.scalar_one_or_none()

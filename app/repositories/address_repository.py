@@ -17,17 +17,23 @@ class AddressRepository:
         return address
 
     async def get_by_id(self, id: int) -> Optional[Address]:
-        result = await self.db.execute(select(Address).where(Address.id == id))
+        result = await self.db.execute(
+            select(Address).where(Address.id == id, Address.is_deleted == False)
+        )
         return result.scalar_one_or_none()
 
     async def get_all_by_user(self, user_id: int) -> list[Address]:
         result = await self.db.execute(
-            select(Address).where(Address.user_id == user_id).order_by(Address.id)
+            select(Address)
+            .where(Address.user_id == user_id, Address.is_deleted == False)
+            .order_by(Address.id)
         )
         return list(result.scalars().all())
 
     async def get_all(self, skip: int = 0, limit: int = 100) -> list[Address]:
-        result = await self.db.execute(select(Address).offset(skip).limit(limit))
+        result = await self.db.execute(
+            select(Address).where(Address.is_deleted == False).offset(skip).limit(limit)
+        )
         return list(result.scalars().all())
 
     async def update(self, id: int, data: AddressUpdate) -> Optional[Address]:
@@ -44,16 +50,20 @@ class AddressRepository:
         address = await self.get_by_id(id)
         if not address:
             return False
-        await self.db.delete(address)
+        address.is_deleted = True
         await self.db.commit()
         return True
 
     async def clear_default_for_user(self, user_id: int) -> None:
         await self.db.execute(
-            update(Address).where(Address.user_id == user_id).values(is_default=False)
+            update(Address)
+            .where(Address.user_id == user_id, Address.is_deleted == False)
+            .values(is_default=False)
         )
         await self.db.commit()
 
     async def count(self) -> int:
-        result = await self.db.execute(select(func.count()).select_from(Address))
+        result = await self.db.execute(
+            select(func.count()).select_from(Address).where(Address.is_deleted == False)
+        )
         return result.scalar_one()
