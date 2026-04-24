@@ -6,1649 +6,1762 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000",
-      "type": "string"
-    },
-    {
-      "key": "access_token",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "user_id",
-      "value": "1",
-      "type": "string"
-    },
-    {
-      "key": "store_id",
-      "value": "00000000-0000-0000-0000-000000000000",
-      "type": "string"
-    }
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "user_id", "value": "1", "type": "string" },
+    { "key": "store_id", "value": "00000000-0000-0000-0000-000000000000", "type": "string" },
+    { "key": "category_id", "value": "1", "type": "string" },
+    { "key": "garment_id", "value": "1", "type": "string" },
+    { "key": "address_id", "value": "1", "type": "string" },
+    { "key": "review_id", "value": "1", "type": "string" },
+    { "key": "wishlist_id", "value": "1", "type": "string" },
+    { "key": "ar_session_id", "value": "1", "type": "string" }
   ],
   "item": [
     {
-      "name": "Users",
-      "item": [
+      "name": "Create User",
+      "event": [
         {
-          "name": "Create User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has email', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('email');",
-                  "});",
-                  "if (pm.response.code === 201) {",
-                  "    pm.collectionVariables.set('user_id', pm.response.json().id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has email', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('email');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('user_id', pm.response.json().id);",
+              "}"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"firebase_uid\": \"test_uid_123\",\n  \"email\": \"test@example.com\",\n  \"display_name\": \"Test User\",\n  \"phone\": \"0901234567\",\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/users",
-              "host": ["{{base_url}}"],
-              "path": ["users"]
-            }
-          }
-        },
-        {
-          "name": "Get All Users",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users?skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["users"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get User By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Get User By Firebase UID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has firebase_uid', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('firebase_uid');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/by-uid/test_uid_123",
-              "host": ["{{base_url}}"],
-              "path": ["users", "by-uid", "test_uid_123"]
-            }
-          }
-        },
-        {
-          "name": "Update User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"display_name\": \"Updated Name\",\n  \"phone\": \"0909999999\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firebase_uid\": \"test_uid_123\",\n  \"email\": \"test@example.com\",\n  \"display_name\": \"Test User\",\n  \"phone\": \"0901234567\",\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/users",
+          "host": ["{{base_url}}"],
+          "path": ["users"]
+        }
+      }
     },
     {
-      "name": "Stores",
-      "item": [
+      "name": "Get All Users",
+      "event": [
         {
-          "name": "Create Store",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has name', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('name');",
-                  "});",
-                  "if (pm.response.code === 201) {",
-                  "    pm.collectionVariables.set('store_id', pm.response.json().id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Test Store\",\n  \"description\": \"Mô tả store\",\n  \"address\": \"123 Nguyễn Huệ, Q1\",\n  \"phone\": \"0901234567\",\n  \"email\": \"store@example.com\",\n  \"website\": \"https://store.com\",\n  \"is_active\": true,\n  \"user_id\": 1\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/stores",
-              "host": ["{{base_url}}"],
-              "path": ["stores"]
-            }
-          }
-        },
-        {
-          "name": "Get All Stores",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/stores?skip=0&limit=10",
-              "host": ["{{base_url}}"],
-              "path": ["stores"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "10" },
-                { "key": "is_active", "value": "true", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Store By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/stores/{{store_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["stores", "{{store_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Store",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Store Name\",\n  \"is_active\": true\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/stores/{{store_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["stores", "{{store_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Store",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/stores/{{store_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["stores", "{{store_id}}"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users?skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["users"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      }
     },
     {
-      "name": "Garments",
-      "item": [
+      "name": "Get User By ID",
+      "event": [
         {
-          "name": "Create Garment (multipart)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has model_url', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('model_url');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "name", "value": "Áo thun test", "type": "text" },
-                { "key": "description", "value": "Mô tả sản phẩm", "type": "text" },
-                { "key": "item_index", "value": "1", "type": "text" },
-                { "key": "category_id", "value": "1", "type": "text" },
-                { "key": "store_id", "value": "{{store_id}}", "type": "text" },
-                { "key": "file", "type": "file", "src": "", "description": "Upload .glb file" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/garments/",
-              "host": ["{{base_url}}"],
-              "path": ["garments", ""]
-            }
-          }
-        },
-        {
-          "name": "Get All Garments",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garments/",
-              "host": ["{{base_url}}"],
-              "path": ["garments", ""]
-            }
-          }
-        },
-        {
-          "name": "Get Garment By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garments/1",
-              "host": ["{{base_url}}"],
-              "path": ["garments", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update Garment (multipart)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "name", "value": "Áo thun updated", "type": "text" },
-                { "key": "description", "value": "Mô tả mới", "type": "text" },
-                { "key": "file", "type": "file", "src": "", "disabled": true, "description": "Optional: upload new .glb file" }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/garments/1",
-              "host": ["{{base_url}}"],
-              "path": ["garments", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Garment",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has deleted', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('deleted');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garments/1",
-              "host": ["{{base_url}}"],
-              "path": ["garments", "1"]
-            }
-          }
-        },
-        {
-          "name": "Get Lens Link",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has lens_url', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('lens_url');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garments/1/lens-link",
-              "host": ["{{base_url}}"],
-              "path": ["garments", "1", "lens-link"]
-            }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}"]
+        }
+      }
     },
     {
-      "name": "Garment Categories",
-      "item": [
+      "name": "Get User By Firebase UID",
+      "event": [
         {
-          "name": "Create Garment Category",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has name', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('name');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has firebase_uid', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('firebase_uid');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Áo\",\n  \"description\": \"Danh mục áo\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/garment-categories",
-              "host": ["{{base_url}}"],
-              "path": ["garment-categories"]
-            }
-          }
-        },
-        {
-          "name": "Get All Garment Categories",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garment-categories",
-              "host": ["{{base_url}}"],
-              "path": ["garment-categories"]
-            }
-          }
-        },
-        {
-          "name": "Get Garment Category By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garment-categories/1",
-              "host": ["{{base_url}}"],
-              "path": ["garment-categories", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update Garment Category",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Áo updated\",\n  \"description\": \"Mô tả mới\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/garment-categories/1",
-              "host": ["{{base_url}}"],
-              "path": ["garment-categories", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Garment Category",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/garment-categories/1",
-              "host": ["{{base_url}}"],
-              "path": ["garment-categories", "1"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/by-uid/test_uid_123",
+          "host": ["{{base_url}}"],
+          "path": ["users", "by-uid", "test_uid_123"]
+        }
+      }
     },
     {
-      "name": "Addresses",
-      "item": [
+      "name": "Update User",
+      "event": [
         {
-          "name": "Create Address",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has user_id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('user_id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Nguyễn Văn A\",\n  \"phone\": \"0901234567\",\n  \"address\": \"123 Đường ABC\",\n  \"city\": \"Hồ Chí Minh\",\n  \"district\": \"Quận 1\",\n  \"ward\": \"Phường Bến Nghé\",\n  \"is_default\": true\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses"]
-            }
-          }
-        },
-        {
-          "name": "Get All Addresses",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses"]
-            }
-          }
-        },
-        {
-          "name": "Get Address By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses/1",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update Address",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Nguyễn Văn B\",\n  \"phone\": \"0909999999\",\n  \"is_default\": false\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses/1",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses", "1"]
-            }
-          }
-        },
-        {
-          "name": "Set Default Address",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('is_default is true', () => {",
-                  "    pm.expect(pm.response.json().is_default).to.be.true;",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses/1/set-default",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses", "1", "set-default"]
-            }
-          }
-        },
-        {
-          "name": "Delete Address",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/addresses/1",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "addresses", "1"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"display_name\": \"Updated Name\",\n  \"phone\": \"0909999999\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}"]
+        }
+      }
     },
     {
-      "name": "Reviews",
-      "item": [
+      "name": "Create Store",
+      "event": [
         {
-          "name": "Create Review",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has rating', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('rating');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has name', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('name');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('store_id', pm.response.json().id);",
+              "}"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"rating\": 5,\n  \"comment\": \"Sản phẩm tốt!\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/reviews",
-              "host": ["{{base_url}}"],
-              "path": ["reviews"]
-            }
-          }
-        },
-        {
-          "name": "Get All Reviews",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/reviews?skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["reviews"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" },
-                { "key": "firestore_product_id", "value": "product_123", "disabled": true },
-                { "key": "user_id", "value": "1", "disabled": true },
-                { "key": "rating", "value": "5", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Review By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/reviews/1",
-              "host": ["{{base_url}}"],
-              "path": ["reviews", "1"]
-            }
-          }
-        },
-        {
-          "name": "Get Review Stats By Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has avg_rating', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('avg_rating');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/reviews/product/product_123/stats",
-              "host": ["{{base_url}}"],
-              "path": ["reviews", "product", "product_123", "stats"]
-            }
-          }
-        },
-        {
-          "name": "Update Review",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Sản phẩm khá tốt\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/reviews/1",
-              "host": ["{{base_url}}"],
-              "path": ["reviews", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Review",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/reviews/1",
-              "host": ["{{base_url}}"],
-              "path": ["reviews", "1"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Store\",\n  \"description\": \"Mô tả store\",\n  \"address\": \"123 Nguyễn Huệ, Q1\",\n  \"phone\": \"0901234567\",\n  \"email\": \"store@example.com\",\n  \"website\": \"https://store.com\",\n  \"is_active\": true,\n  \"user_id\": 1\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/stores",
+          "host": ["{{base_url}}"],
+          "path": ["stores"]
+        }
+      }
     },
     {
-      "name": "Wishlists",
-      "item": [
+      "name": "Get All Stores",
+      "event": [
         {
-          "name": "Add To Wishlist",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has user_id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('user_id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"garment_id\": 1,\n  \"firestore_product_id\": \"product_123\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/wishlists",
-              "host": ["{{base_url}}"],
-              "path": ["wishlists"]
-            }
-          }
-        },
-        {
-          "name": "Get All Wishlists",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/wishlists?user_id=1&skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["wishlists"],
-              "query": [
-                { "key": "user_id", "value": "1" },
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Check Wishlist",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has is_wishlisted', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('is_wishlisted');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/wishlists/check?user_id=1&firestore_product_id=product_123",
-              "host": ["{{base_url}}"],
-              "path": ["wishlists", "check"],
-              "query": [
-                { "key": "user_id", "value": "1" },
-                { "key": "firestore_product_id", "value": "product_123" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Wishlist By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/wishlists/1",
-              "host": ["{{base_url}}"],
-              "path": ["wishlists", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Wishlist By Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/wishlists/product/product_123?user_id=1",
-              "host": ["{{base_url}}"],
-              "path": ["wishlists", "product", "product_123"],
-              "query": [{ "key": "user_id", "value": "1" }]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/stores?skip=0&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["stores"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "10" },
+            { "key": "is_active", "value": "true", "disabled": true }
+          ]
+        }
+      }
     },
     {
-      "name": "AR Sessions",
-      "item": [
+      "name": "Get Store By ID",
+      "event": [
         {
-          "name": "Create AR Session",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has garment_id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('garment_id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"garment_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"duration_seconds\": 120,\n  \"converted\": false\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/ar-sessions",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions"]
-            }
-          }
-        },
-        {
-          "name": "Get All AR Sessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/ar-sessions?skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" },
-                { "key": "user_id", "value": "1", "disabled": true },
-                { "key": "garment_id", "value": "1", "disabled": true },
-                { "key": "converted", "value": "false", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get AR Session By ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/ar-sessions/1",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions", "1"]
-            }
-          }
-        },
-        {
-          "name": "Get AR Sessions Stats",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has total_sessions', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('total_sessions');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/ar-sessions/stats/summary",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions", "stats", "summary"]
-            }
-          }
-        },
-        {
-          "name": "Mark AR Session Converted",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('converted is true', () => {",
-                  "    pm.expect(pm.response.json().converted).to.be.true;",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/ar-sessions/1/converted",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions", "1", "converted"]
-            }
-          }
-        },
-        {
-          "name": "Delete AR Session",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/ar-sessions/1",
-              "host": ["{{base_url}}"],
-              "path": ["ar-sessions", "1"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/stores/{{store_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["stores", "{{store_id}}"]
+        }
+      }
     },
     {
-      "name": "Product Views",
-      "item": [
+      "name": "Update Store",
+      "event": [
         {
-          "name": "Record Product View",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has firestore_product_id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('firestore_product_id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"session_id\": \"session_abc\",\n  \"source\": \"home\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/product-views",
-              "host": ["{{base_url}}"],
-              "path": ["product-views"]
-            }
-          }
-        },
-        {
-          "name": "Get All Product Views",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/product-views?skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["product-views"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" },
-                { "key": "firestore_product_id", "value": "product_123", "disabled": true },
-                { "key": "user_id", "value": "1", "disabled": true },
-                { "key": "source", "value": "home", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Count Product Views By Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has view_count', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('view_count');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/product-views/product/product_123/count",
-              "host": ["{{base_url}}"],
-              "path": ["product-views", "product", "product_123", "count"]
-            }
-          }
-        },
-        {
-          "name": "Get Top Products",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/product-views/stats/top-products?limit=10",
-              "host": ["{{base_url}}"],
-              "path": ["product-views", "stats", "top-products"],
-              "query": [{ "key": "limit", "value": "10" }]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Store Name\",\n  \"is_active\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/stores/{{store_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["stores", "{{store_id}}"]
+        }
+      }
     },
     {
-      "name": "Conversion Events",
-      "item": [
+      "name": "Create Garment Category",
+      "event": [
         {
-          "name": "Record Conversion Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Has id', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('id');",
-                  "});",
-                  "pm.test('Has event_type', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('event_type');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has name', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('name');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('category_id', pm.response.json().id);",
+              "}"
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"garment_id\": 1,\n  \"event_type\": \"view\",\n  \"session_id\": \"session_abc\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/conversion-events",
-              "host": ["{{base_url}}"],
-              "path": ["conversion-events"]
-            }
-          }
-        },
-        {
-          "name": "Get All Conversion Events",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Response is array', () => {",
-                  "    pm.expect(pm.response.json()).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/conversion-events?skip=0&limit=20",
-              "host": ["{{base_url}}"],
-              "path": ["conversion-events"],
-              "query": [
-                { "key": "skip", "value": "0" },
-                { "key": "limit", "value": "20" },
-                { "key": "firestore_product_id", "value": "product_123", "disabled": true },
-                { "key": "event_type", "value": "view", "disabled": true },
-                { "key": "user_id", "value": "1", "disabled": true }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Conversion Funnel By Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has view', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('view');",
-                  "});",
-                  "pm.test('Has ar_try_on', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('ar_try_on');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/conversion-events/product/product_123/funnel",
-              "host": ["{{base_url}}"],
-              "path": ["conversion-events", "product", "product_123", "funnel"]
-            }
-          }
-        },
-        {
-          "name": "Get Conversion Events Overview",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has view', () => {",
-                  "    pm.expect(pm.response.json()).to.have.property('view');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": {
-              "raw": "{{base_url}}/conversion-events/stats/overview",
-              "host": ["{{base_url}}"],
-              "path": ["conversion-events", "stats", "overview"]
-            }
+            "type": "text/javascript"
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Áo\",\n  \"description\": \"Danh mục áo\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/garment-categories",
+          "host": ["{{base_url}}"],
+          "path": ["garment-categories"]
+        }
+      }
+    },
+    {
+      "name": "Get All Garment Categories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garment-categories",
+          "host": ["{{base_url}}"],
+          "path": ["garment-categories"]
+        }
+      }
+    },
+    {
+      "name": "Get Garment Category By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garment-categories/{{category_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garment-categories", "{{category_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Garment Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Áo updated\",\n  \"description\": \"Mô tả mới\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/garment-categories/{{category_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garment-categories", "{{category_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Create Garment (multipart)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has model_url', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('model_url');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('garment_id', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "name", "value": "Áo thun test", "type": "text" },
+            { "key": "description", "value": "Mô tả sản phẩm", "type": "text" },
+            { "key": "item_index", "value": "1", "type": "text" },
+            { "key": "category_id", "value": "{{category_id}}", "type": "text" },
+            { "key": "store_id", "value": "{{store_id}}", "type": "text" },
+            { "key": "file", "type": "file", "src": "", "description": "Upload .glb file" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/garments/",
+          "host": ["{{base_url}}"],
+          "path": ["garments", ""]
+        }
+      }
+    },
+    {
+      "name": "Get All Garments",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garments/",
+          "host": ["{{base_url}}"],
+          "path": ["garments", ""]
+        }
+      }
+    },
+    {
+      "name": "Get Garment By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garments/{{garment_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garments", "{{garment_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Garment (multipart)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "name", "value": "Áo thun updated", "type": "text" },
+            { "key": "description", "value": "Mô tả mới", "type": "text" },
+            { "key": "file", "type": "file", "src": "", "disabled": true, "description": "Optional: upload new .glb file" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/garments/{{garment_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garments", "{{garment_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Lens Link",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has lens_url', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('lens_url');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garments/{{garment_id}}/lens-link",
+          "host": ["{{base_url}}"],
+          "path": ["garments", "{{garment_id}}", "lens-link"]
+        }
+      }
+    },
+    {
+      "name": "Create Address",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has user_id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('user_id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('address_id', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Nguyễn Văn A\",\n  \"phone\": \"0901234567\",\n  \"address\": \"123 Đường ABC\",\n  \"city\": \"Hồ Chí Minh\",\n  \"district\": \"Quận 1\",\n  \"ward\": \"Phường Bến Nghé\",\n  \"is_default\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses"]
+        }
+      }
+    },
+    {
+      "name": "Get All Addresses",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses"]
+        }
+      }
+    },
+    {
+      "name": "Get Address By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses/{{address_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses", "{{address_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Address",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Nguyễn Văn B\",\n  \"phone\": \"0909999999\",\n  \"is_default\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses/{{address_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses", "{{address_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Set Default Address",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('is_default is true', () => {",
+              "    pm.expect(pm.response.json().is_default).to.be.true;",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses/{{address_id}}/set-default",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses", "{{address_id}}", "set-default"]
+        }
+      }
+    },
+    {
+      "name": "Create Review",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has rating', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('rating');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('review_id', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"rating\": 5,\n  \"comment\": \"Sản phẩm tốt!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/reviews",
+          "host": ["{{base_url}}"],
+          "path": ["reviews"]
+        }
+      }
+    },
+    {
+      "name": "Get All Reviews",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/reviews?skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["reviews"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" },
+            { "key": "firestore_product_id", "value": "product_123", "disabled": true },
+            { "key": "user_id", "value": "1", "disabled": true },
+            { "key": "rating", "value": "5", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Review By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/reviews/{{review_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Review Stats By Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has avg_rating', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('avg_rating');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/reviews/product/product_123/stats",
+          "host": ["{{base_url}}"],
+          "path": ["reviews", "product", "product_123", "stats"]
+        }
+      }
+    },
+    {
+      "name": "Update Review",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Sản phẩm khá tốt\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/reviews/{{review_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Add To Wishlist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has user_id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('user_id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('wishlist_id', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 1,\n  \"garment_id\": 1,\n  \"firestore_product_id\": \"product_123\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/wishlists",
+          "host": ["{{base_url}}"],
+          "path": ["wishlists"]
+        }
+      }
+    },
+    {
+      "name": "Get All Wishlists",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/wishlists?user_id=1&skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["wishlists"],
+          "query": [
+            { "key": "user_id", "value": "1" },
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Check Wishlist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has is_wishlisted', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('is_wishlisted');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/wishlists/check?user_id=1&firestore_product_id=product_123",
+          "host": ["{{base_url}}"],
+          "path": ["wishlists", "check"],
+          "query": [
+            { "key": "user_id", "value": "1" },
+            { "key": "firestore_product_id", "value": "product_123" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create AR Session",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has garment_id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('garment_id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});",
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('ar_session_id', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 1,\n  \"garment_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"duration_seconds\": 120,\n  \"converted\": false\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/ar-sessions",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions"]
+        }
+      }
+    },
+    {
+      "name": "Get All AR Sessions",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/ar-sessions?skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" },
+            { "key": "user_id", "value": "1", "disabled": true },
+            { "key": "garment_id", "value": "1", "disabled": true },
+            { "key": "converted", "value": "false", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get AR Session By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Record not deleted', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/ar-sessions/{{ar_session_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions", "{{ar_session_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get AR Sessions Stats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has total_sessions', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('total_sessions');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/ar-sessions/stats/summary",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions", "stats", "summary"]
+        }
+      }
+    },
+    {
+      "name": "Mark AR Session Converted",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('converted is true', () => {",
+              "    pm.expect(pm.response.json().converted).to.be.true;",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/ar-sessions/{{ar_session_id}}/converted",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions", "{{ar_session_id}}", "converted"]
+        }
+      }
+    },
+    {
+      "name": "Record Product View",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has firestore_product_id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('firestore_product_id');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"session_id\": \"session_abc\",\n  \"source\": \"home\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/product-views",
+          "host": ["{{base_url}}"],
+          "path": ["product-views"]
+        }
+      }
+    },
+    {
+      "name": "Get All Product Views",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/product-views?skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["product-views"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" },
+            { "key": "firestore_product_id", "value": "product_123", "disabled": true },
+            { "key": "user_id", "value": "1", "disabled": true },
+            { "key": "source", "value": "home", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Count Product Views By Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has view_count', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('view_count');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/product-views/product/product_123/count",
+          "host": ["{{base_url}}"],
+          "path": ["product-views", "product", "product_123", "count"]
+        }
+      }
+    },
+    {
+      "name": "Get Top Products",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/product-views/stats/top-products?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["product-views", "stats", "top-products"],
+          "query": [{ "key": "limit", "value": "10" }]
+        }
+      }
+    },
+    {
+      "name": "Record Conversion Event",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Has id', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('id');",
+              "});",
+              "pm.test('Has event_type', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('event_type');",
+              "});",
+              "pm.test('is_deleted is false', () => {",
+              "    pm.expect(pm.response.json().is_deleted).to.equal(false);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 1,\n  \"firestore_product_id\": \"product_123\",\n  \"garment_id\": 1,\n  \"event_type\": \"view\",\n  \"session_id\": \"session_abc\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/conversion-events",
+          "host": ["{{base_url}}"],
+          "path": ["conversion-events"]
+        }
+      }
+    },
+    {
+      "name": "Get All Conversion Events",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('No soft deleted records', () => {",
+              "    const data = pm.response.json();",
+              "    if (Array.isArray(data)) {",
+              "        data.forEach(item => {",
+              "            pm.expect(item.is_deleted).to.not.equal(true);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/conversion-events?skip=0&limit=20",
+          "host": ["{{base_url}}"],
+          "path": ["conversion-events"],
+          "query": [
+            { "key": "skip", "value": "0" },
+            { "key": "limit", "value": "20" },
+            { "key": "firestore_product_id", "value": "product_123", "disabled": true },
+            { "key": "event_type", "value": "view", "disabled": true },
+            { "key": "user_id", "value": "1", "disabled": true }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Conversion Funnel By Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has view', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('view');",
+              "});",
+              "pm.test('Has ar_try_on', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('ar_try_on');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/conversion-events/product/product_123/funnel",
+          "host": ["{{base_url}}"],
+          "path": ["conversion-events", "product", "product_123", "funnel"]
+        }
+      }
+    },
+    {
+      "name": "Get Conversion Events Overview",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Has view', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('view');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/conversion-events/stats/overview",
+          "host": ["{{base_url}}"],
+          "path": ["conversion-events", "stats", "overview"]
+        }
+      }
+    },
+    {
+      "name": "Delete Address",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}/addresses/{{address_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}", "addresses", "{{address_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Review",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/reviews/{{review_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Wishlist By Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/wishlists/product/product_123?user_id=1",
+          "host": ["{{base_url}}"],
+          "path": ["wishlists", "product", "product_123"],
+          "query": [{ "key": "user_id", "value": "1" }]
+        }
+      }
+    },
+    {
+      "name": "Delete Wishlist By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/wishlists/{{wishlist_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["wishlists", "{{wishlist_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete AR Session",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/ar-sessions/{{ar_session_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["ar-sessions", "{{ar_session_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Garment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garments/{{garment_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garments", "{{garment_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Garment Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garment-categories/{{category_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["garment-categories", "{{category_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Store",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/stores/{{store_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["stores", "{{store_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["users", "{{user_id}}"]
+        }
+      }
     }
   ]
 }
