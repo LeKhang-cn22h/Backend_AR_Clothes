@@ -40,3 +40,4 @@ class StoreResponse(StoreBase):
     user_id: int
     created_at: datetime
     updated_at: datetime
+    is_deleted: bool = False

@@ -29,3 +29,4 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str]
     created_at: datetime
     updated_at: datetime
+    is_deleted: bool = False

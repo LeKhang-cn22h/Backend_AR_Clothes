@@ -17,6 +17,7 @@ class WishlistResponse(BaseModel):
     firestore_product_id: str
     garment_id: Optional[int]
     created_at: datetime
+    is_deleted: bool = False
 
 
 class WishlistCheckResponse(BaseModel):

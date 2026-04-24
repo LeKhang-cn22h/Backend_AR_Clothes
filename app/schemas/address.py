@@ -37,3 +37,4 @@ class AddressResponse(BaseModel):
     is_default: bool
     created_at: datetime
     updated_at: datetime
+    is_deleted: bool = False

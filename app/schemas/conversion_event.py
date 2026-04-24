@@ -22,6 +22,7 @@ class ConversionEventResponse(BaseModel):
     event_type: ConversionEventType
     session_id: Optional[str]
     created_at: datetime
+    is_deleted: bool = False
 
 
 class FunnelResponse(BaseModel):

@@ -20,3 +20,4 @@ class GarmentCategoryResponse(BaseModel):
     name: str
     description: Optional[str]
     created_at: datetime
+    is_deleted: bool = False

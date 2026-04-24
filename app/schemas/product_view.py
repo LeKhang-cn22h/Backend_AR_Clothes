@@ -19,6 +19,7 @@ class ProductViewResponse(BaseModel):
     session_id: Optional[str]
     source: Optional[str]
     created_at: datetime
+    is_deleted: bool = False
 
 
 class ProductViewCountResponse(BaseModel):

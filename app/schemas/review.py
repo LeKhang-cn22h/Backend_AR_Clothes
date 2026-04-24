@@ -39,6 +39,7 @@ class ReviewResponse(BaseModel):
     comment: Optional[str]
     created_at: datetime
     updated_at: datetime
+    is_deleted: bool = False
 
 
 class ReviewStatsResponse(BaseModel):

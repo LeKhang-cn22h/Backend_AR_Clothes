@@ -21,6 +21,7 @@ class ARSessionResponse(BaseModel):
     duration_seconds: Optional[int]
     converted: bool
     created_at: datetime
+    is_deleted: bool = False
 
 
 class ARSessionStatsResponse(BaseModel):

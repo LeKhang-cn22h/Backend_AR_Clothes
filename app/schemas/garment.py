@@ -34,6 +34,7 @@ class GarmentResponse(BaseModel):
     store_id: Optional[uuid.UUID]
     created_at: datetime
     updated_at: datetime
+    is_deleted: bool = False
 
 
 class LensLinkResponse(BaseModel):
