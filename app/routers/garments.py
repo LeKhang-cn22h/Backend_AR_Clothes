@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
+import uuid
 from typing import Optional
+
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +17,7 @@ async def create(
     description: Optional[str] = Form(None),
     item_index: Optional[int] = Form(None),
     category_id: Optional[int] = Form(None),
-    firestore_product_id: Optional[str] = Form(None),
+    store_id: Optional[uuid.UUID] = Form(None),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
@@ -25,7 +26,7 @@ async def create(
         description=description,
         item_index=item_index,
         category_id=category_id,
-        firestore_product_id=firestore_product_id,
+        store_id=store_id,
     )
     return await svc.create_garment(db, data, file)
 
@@ -47,7 +48,7 @@ async def update(
     description: Optional[str] = Form(None),
     item_index: Optional[int] = Form(None),
     category_id: Optional[int] = Form(None),
-    firestore_product_id: Optional[str] = Form(None),
+    store_id: Optional[uuid.UUID] = Form(None),
     file: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -56,7 +57,7 @@ async def update(
         description=description,
         item_index=item_index,
         category_id=category_id,
-        firestore_product_id=firestore_product_id,
+        store_id=store_id,
     )
     return await svc.update_garment(db, garment_id, data, file)
 
