@@ -36,5 +36,13 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db():
+    from models.garment_category import GarmentCategory  # noqa: F401
+    from models.user import User  # noqa: F401
+    from models.address import Address  # noqa: F401
+    from models.ar_session import ARSession  # noqa: F401
+    from models.review import Review  # noqa: F401
+    from models.wishlist import Wishlist  # noqa: F401
+    from models.product_view import ProductView  # noqa: F401
+    from models.conversion_event import ConversionEvent  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
