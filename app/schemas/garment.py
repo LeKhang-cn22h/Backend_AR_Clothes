@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+import uuid
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -9,7 +10,7 @@ class GarmentCreate(BaseModel):
     description: Optional[str] = None
     item_index: Optional[int] = None
     category_id: Optional[int] = None
-    firestore_product_id: Optional[str] = None
+    store_id: Optional[uuid.UUID] = None
 
 
 class GarmentUpdate(BaseModel):
@@ -17,7 +18,7 @@ class GarmentUpdate(BaseModel):
     description: Optional[str] = None
     item_index: Optional[int] = None
     category_id: Optional[int] = None
-    firestore_product_id: Optional[str] = None
+    store_id: Optional[uuid.UUID] = None
 
 
 class GarmentResponse(BaseModel):
@@ -28,10 +29,9 @@ class GarmentResponse(BaseModel):
     description: Optional[str]
     model_url: str
     public_id: str
-    local_url: Optional[str]
     item_index: Optional[int]
     category_id: Optional[int]
-    firestore_product_id: Optional[str]
+    store_id: Optional[uuid.UUID]
     created_at: datetime
     updated_at: datetime
 

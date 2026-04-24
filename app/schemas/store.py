@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import uuid
 from datetime import datetime
 from typing import Optional
@@ -9,8 +8,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 class StoreBase(BaseModel):
     name: str
     description: Optional[str] = None
-    address: str
-    phone: str
+    address: Optional[str] = None
+    phone: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None
     logo_url: Optional[str] = None
@@ -19,7 +18,7 @@ class StoreBase(BaseModel):
 
 
 class StoreCreate(StoreBase):
-    pass
+    user_id: int
 
 
 class StoreUpdate(BaseModel):
@@ -38,5 +37,6 @@ class StoreResponse(StoreBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    user_id: int
     created_at: datetime
     updated_at: datetime
