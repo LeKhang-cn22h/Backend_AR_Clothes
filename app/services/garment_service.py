@@ -10,7 +10,7 @@ from config import settings
 from models.garment import Garment
 from schemas.garment import GarmentCreate, GarmentUpdate
 
-LENS_ID = "YOUR_LENS_ID"   
+LENS_ID = "8db6dfc4-c7f3-4cc6-a7d5-d4e335db567f"   
 GLB_FOLDER = "ar_garments"
 
 cloudinary.config(
@@ -72,6 +72,8 @@ async def create_garment(
         name=data.name,
         description=data.description,
         item_index=data.item_index,
+        category_id=data.category_id,
+        firestore_product_id=data.firestore_product_id,
         model_url=uploaded["url"],
         local_url=local_url,
         public_id=uploaded["public_id"],
@@ -113,6 +115,10 @@ async def update_garment(
         garment.description = data.description
     if data.item_index is not None:
         garment.item_index = data.item_index
+    if data.category_id is not None:
+        garment.category_id = data.category_id
+    if data.firestore_product_id is not None:
+        garment.firestore_product_id = data.firestore_product_id
 
     # Nếu có file mới → xóa file cũ trên Cloudinary rồi upload mới
     if file:
