@@ -9,12 +9,7 @@ import cloudinary.api
 from PIL import Image
 
 from config import settings
-
-cloudinary.config(
-    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-    api_key=settings.CLOUDINARY_API_KEY,
-    api_secret=settings.CLOUDINARY_API_SECRET,
-)
+from core.cloudinary import cloudinary
 
 DEFAULT_FOLDER = "tryon_results"
 

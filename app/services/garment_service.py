@@ -7,15 +7,11 @@ from sqlalchemy import select, delete
 from config import settings
 from models.garment import Garment
 from schemas.garment import GarmentCreate, GarmentUpdate
+from core.cloudinary import cloudinary
 
 LENS_ID = "8db6dfc4-c7f3-4cc6-a7d5-d4e335db567f"
 GLB_FOLDER = "ar_garments"
 
-cloudinary.config(
-    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-    api_key=settings.CLOUDINARY_API_KEY,
-    api_secret=settings.CLOUDINARY_API_SECRET,
-)
 
 
 def _upload_glb(file: UploadFile) -> dict:
