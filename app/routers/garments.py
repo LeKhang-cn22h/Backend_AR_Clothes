@@ -15,10 +15,18 @@ async def create(
     name: str = Form(...),
     description: Optional[str] = Form(None),
     item_index: Optional[int] = Form(None),
+    category_id: Optional[int] = Form(None),
+    firestore_product_id: Optional[str] = Form(None),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
-    data = GarmentCreate(name=name, description=description, item_index=item_index)
+    data = GarmentCreate(
+        name=name,
+        description=description,
+        item_index=item_index,
+        category_id=category_id,
+        firestore_product_id=firestore_product_id,
+    )
     return await svc.create_garment(db, data, file)
 
 
@@ -38,10 +46,18 @@ async def update(
     name: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     item_index: Optional[int] = Form(None),
+    category_id: Optional[int] = Form(None),
+    firestore_product_id: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
-    data = GarmentUpdate(name=name, description=description, item_index=item_index)
+    data = GarmentUpdate(
+        name=name,
+        description=description,
+        item_index=item_index,
+        category_id=category_id,
+        firestore_product_id=firestore_product_id,
+    )
     return await svc.update_garment(db, garment_id, data, file)
 
 
