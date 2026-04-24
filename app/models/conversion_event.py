@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Integer, String, DateTime, ForeignKey, Enum, func
+from sqlalchemy import Boolean, Integer, String, DateTime, ForeignKey, Enum, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 
@@ -22,6 +22,7 @@ class ConversionEvent(Base):
     event_type: Mapped[ConversionEventType] = mapped_column(Enum(ConversionEventType), nullable=False)
     session_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="conversion_events")
     garment = relationship("Garment", back_populates="conversion_events")

@@ -33,6 +33,7 @@ class Store(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="stores")
     garments = relationship("Garment", back_populates="store")

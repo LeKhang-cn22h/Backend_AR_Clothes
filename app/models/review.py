@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Integer, String, Text, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, func
+from sqlalchemy import Boolean, Integer, String, Text, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 
@@ -20,5 +20,6 @@ class Review(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="reviews")

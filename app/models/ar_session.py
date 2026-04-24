@@ -14,6 +14,7 @@ class ARSession(Base):
     duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
     converted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="ar_sessions")
     garment = relationship("Garment", back_populates="ar_sessions")

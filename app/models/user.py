@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
@@ -23,6 +23,7 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     stores = relationship("Store", back_populates="user")
     addresses = relationship("Address", back_populates="user")

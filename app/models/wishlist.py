@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Integer, String, DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy import Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 
@@ -15,6 +15,7 @@ class Wishlist(Base):
     firestore_product_id: Mapped[str] = mapped_column(String(100), nullable=False)
     garment_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("garments.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="wishlists")
     garment = relationship("Garment", back_populates="wishlists")
