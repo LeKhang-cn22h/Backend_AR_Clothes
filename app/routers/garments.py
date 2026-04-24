@@ -19,6 +19,7 @@ async def create(
     category_id: Optional[int] = Form(None),
     store_id: Optional[uuid.UUID] = Form(None),
     file: UploadFile = File(...),
+    cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
     data = GarmentCreate(
@@ -28,7 +29,7 @@ async def create(
         category_id=category_id,
         store_id=store_id,
     )
-    return await svc.create_garment(db, data, file)
+    return await svc.create_garment(db, data, file, cloth_image)
 
 
 @router.get("/", response_model=list[GarmentResponse])
@@ -50,6 +51,7 @@ async def update(
     category_id: Optional[int] = Form(None),
     store_id: Optional[uuid.UUID] = Form(None),
     file: Optional[UploadFile] = File(None),
+    cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
     data = GarmentUpdate(
@@ -59,7 +61,7 @@ async def update(
         category_id=category_id,
         store_id=store_id,
     )
-    return await svc.update_garment(db, garment_id, data, file)
+    return await svc.update_garment(db, garment_id, data, file, cloth_image)
 
 
 @router.delete("/{garment_id}")

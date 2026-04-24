@@ -2,7 +2,7 @@ import cloudinary
 import cloudinary.uploader
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select
 
 from config import settings
 from models.garment import Garment
@@ -11,7 +11,8 @@ from core.cloudinary import cloudinary
 
 LENS_ID = "8db6dfc4-c7f3-4cc6-a7d5-d4e335db567f"
 GLB_FOLDER = "ar_garments"
-
+CLOTH_IMAGE_FOLDER = "ar_garments_cloth"
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 def _upload_glb(file: UploadFile) -> dict:
@@ -36,12 +37,31 @@ def _delete_glb(public_id: str):
     cloudinary.uploader.destroy(public_id, resource_type="raw")
 
 
+def _upload_cloth_image(file: UploadFile) -> dict:
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Cloth image phải là image/jpeg, image/png hoặc image/webp",
+        )
+    result = cloudinary.uploader.upload(
+        file.file,
+        folder=CLOTH_IMAGE_FOLDER,
+        resource_type="image",
+        use_filename=True,
+        unique_filename=True,
+    )
+    return {"url": result["secure_url"], "public_id": result["public_id"]}
+
+
 async def create_garment(
     db: AsyncSession,
     data: GarmentCreate,
     file: UploadFile,
+    cloth_image: UploadFile | None = None,
 ) -> Garment:
     uploaded = _upload_glb(file)
+
+    cloth_uploaded = _upload_cloth_image(cloth_image) if cloth_image else None
 
     garment = Garment(
         name=data.name,
@@ -51,6 +71,8 @@ async def create_garment(
         store_id=data.store_id,
         model_url=uploaded["url"],
         public_id=uploaded["public_id"],
+        cloth_image_url=cloth_uploaded["url"] if cloth_uploaded else None,
+        cloth_image_public_id=cloth_uploaded["public_id"] if cloth_uploaded else None,
     )
     db.add(garment)
     await db.commit()
@@ -76,6 +98,7 @@ async def update_garment(
     garment_id: int,
     data: GarmentUpdate,
     file: UploadFile | None = None,
+    cloth_image: UploadFile | None = None,
 ) -> Garment:
     garment = await get_garment_by_id(db, garment_id)
 
@@ -96,6 +119,13 @@ async def update_garment(
         garment.model_url = uploaded["url"]
         garment.public_id = uploaded["public_id"]
 
+    if cloth_image:
+        if garment.cloth_image_public_id:
+            cloudinary.uploader.destroy(garment.cloth_image_public_id, resource_type="image")
+        cloth_uploaded = _upload_cloth_image(cloth_image)
+        garment.cloth_image_url = cloth_uploaded["url"]
+        garment.cloth_image_public_id = cloth_uploaded["public_id"]
+
     await db.commit()
     await db.refresh(garment)
     return garment
@@ -103,8 +133,14 @@ async def update_garment(
 
 async def delete_garment(db: AsyncSession, garment_id: int) -> dict:
     garment = await get_garment_by_id(db, garment_id)
-    _delete_glb(garment.public_id)
-    await db.execute(delete(Garment).where(Garment.id == garment_id))
+
+    if garment.public_id:
+        _delete_glb(garment.public_id)
+
+    if garment.cloth_image_public_id:
+        cloudinary.uploader.destroy(garment.cloth_image_public_id, resource_type="image")
+
+    garment.is_deleted = True
     await db.commit()
     return {"deleted": garment_id}
 

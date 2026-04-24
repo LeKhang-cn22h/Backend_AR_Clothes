@@ -29,6 +29,8 @@ class Garment(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    cloth_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    cloth_image_public_id: Mapped[str | None] = mapped_column(String, nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     category = relationship("GarmentCategory", back_populates="garments")

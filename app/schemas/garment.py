@@ -32,6 +32,8 @@ class GarmentResponse(BaseModel):
     item_index: Optional[int]
     category_id: Optional[int]
     store_id: Optional[uuid.UUID]
+    cloth_image_url: Optional[str] = None
+    cloth_image_public_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     is_deleted: bool = False
