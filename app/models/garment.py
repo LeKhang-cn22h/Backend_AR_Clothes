@@ -17,6 +17,10 @@ class Garment(Base):
     model_url: Mapped[str] = mapped_column(String(1000), nullable=False)
     public_id: Mapped[str] = mapped_column(String(500), nullable=False)
     item_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    color: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    firestore_product_id: Mapped[str | None] = mapped_column(
+        String(500), nullable=True, index=True
+    )
     category_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("garment_categories.id"), nullable=True
     )

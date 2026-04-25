@@ -11,6 +11,8 @@ class GarmentCreate(BaseModel):
     item_index: Optional[int] = None
     category_id: Optional[int] = None
     store_id: Optional[uuid.UUID] = None
+    firestore_product_id: Optional[str] = None
+    color: Optional[str] = None
 
 
 class GarmentUpdate(BaseModel):
@@ -19,6 +21,8 @@ class GarmentUpdate(BaseModel):
     item_index: Optional[int] = None
     category_id: Optional[int] = None
     store_id: Optional[uuid.UUID] = None
+    firestore_product_id: Optional[str] = None
+    color: Optional[str] = None
 
 
 class GarmentResponse(BaseModel):
@@ -32,6 +36,8 @@ class GarmentResponse(BaseModel):
     item_index: Optional[int]
     category_id: Optional[int]
     store_id: Optional[uuid.UUID]
+    firestore_product_id: Optional[str] = None
+    color: Optional[str] = None
     cloth_image_url: Optional[str] = None
     cloth_image_public_id: Optional[str] = None
     created_at: datetime

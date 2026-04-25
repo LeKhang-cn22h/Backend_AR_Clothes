@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -18,6 +18,8 @@ async def create(
     item_index: Optional[int] = Form(None),
     category_id: Optional[int] = Form(None),
     store_id: Optional[uuid.UUID] = Form(None),
+    firestore_product_id: Optional[str] = Form(None),
+    color: Optional[str] = Form(None),
     file: UploadFile = File(...),
     cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
@@ -28,6 +30,8 @@ async def create(
         item_index=item_index,
         category_id=category_id,
         store_id=store_id,
+        firestore_product_id=firestore_product_id,
+        color=color,
     )
     return await svc.create_garment(db, data, file, cloth_image)
 
@@ -35,6 +39,19 @@ async def create(
 @router.get("/", response_model=list[GarmentResponse])
 async def get_all(db: AsyncSession = Depends(get_db)):
     return await svc.get_all_garments(db)
+
+
+@router.get("/by-product/{firestore_product_id}", response_model=list[GarmentResponse])
+async def get_by_firestore_product(
+    firestore_product_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Lấy TẤT CẢ garments theo Firebase product ID.
+    Mỗi garment = 1 màu của sản phẩm.
+    Trả về list rỗng nếu không tìm thấy (không raise 404).
+    """
+    return await svc.get_garments_by_firestore_id(db, firestore_product_id)
 
 
 @router.get("/{garment_id}", response_model=GarmentResponse)
@@ -50,6 +67,8 @@ async def update(
     item_index: Optional[int] = Form(None),
     category_id: Optional[int] = Form(None),
     store_id: Optional[uuid.UUID] = Form(None),
+    firestore_product_id: Optional[str] = Form(None),
+    color: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
     cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
@@ -60,6 +79,8 @@ async def update(
         item_index=item_index,
         category_id=category_id,
         store_id=store_id,
+        firestore_product_id=firestore_product_id,
+        color=color,
     )
     return await svc.update_garment(db, garment_id, data, file, cloth_image)
 

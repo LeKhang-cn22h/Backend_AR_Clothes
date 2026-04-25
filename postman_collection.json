@@ -521,6 +521,8 @@
             { "key": "item_index", "value": "1", "type": "text" },
             { "key": "category_id", "value": "{{category_id}}", "type": "text" },
             { "key": "store_id", "value": "{{store_id}}", "type": "text" },
+            { "key": "firestore_product_id", "value": "firebase_product_id_here", "type": "text" },
+            { "key": "color", "value": "Trắng", "type": "text" },
             { "key": "file", "type": "file", "src": "", "description": "Upload .glb file" }
           ]
         },
@@ -595,6 +597,37 @@
       }
     },
     {
+      "name": "Get Garment By Firebase Product ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Response is array', () => {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});",
+              "pm.test('Each item has color', () => {",
+              "    pm.response.json().forEach(item => {",
+              "        pm.expect(item).to.have.property('color');",
+              "    });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/garments/by-product/firebase_product_id_here",
+          "host": ["{{base_url}}"],
+          "path": ["garments", "by-product", "firebase_product_id_here"]
+        }
+      }
+    },
+    {
       "name": "Update Garment (multipart)",
       "event": [
         {
@@ -621,6 +654,8 @@
           "formdata": [
             { "key": "name", "value": "Áo thun updated", "type": "text" },
             { "key": "description", "value": "Mô tả mới", "type": "text" },
+            { "key": "firestore_product_id", "value": "firebase_product_id_here", "type": "text" },
+            { "key": "color", "value": "Trắng", "type": "text" },
             { "key": "file", "type": "file", "src": "", "disabled": true, "description": "Optional: upload new .glb file" }
           ]
         },

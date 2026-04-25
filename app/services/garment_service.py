@@ -16,11 +16,19 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 def _upload_glb(file: UploadFile) -> dict:
-    if not file.filename.endswith(".glb"):
+    filename = file.filename or ""
+    if filename and not filename.endswith(".glb"):
         raise HTTPException(status_code=400, detail="Chỉ chấp nhận file .glb")
 
+    # Reset con trỏ về đầu rồi đọc bytes
+    file.file.seek(0)
+    contents = file.file.read()
+
+    if not contents:
+        raise HTTPException(status_code=400, detail="File GLB rỗng")
+
     result = cloudinary.uploader.upload(
-        file.file,
+        contents,          # <-- truyền bytes thay vì file object
         folder=GLB_FOLDER,
         resource_type="raw",
         use_filename=True,
@@ -31,7 +39,6 @@ def _upload_glb(file: UploadFile) -> dict:
         "url": result["secure_url"],
         "public_id": result["public_id"],
     }
-
 
 def _delete_glb(public_id: str):
     cloudinary.uploader.destroy(public_id, resource_type="raw")
@@ -69,6 +76,8 @@ async def create_garment(
         item_index=data.item_index,
         category_id=data.category_id,
         store_id=data.store_id,
+        firestore_product_id=data.firestore_product_id,
+        color=data.color,
         model_url=uploaded["url"],
         public_id=uploaded["public_id"],
         cloth_image_url=cloth_uploaded["url"] if cloth_uploaded else None,
@@ -78,6 +87,20 @@ async def create_garment(
     await db.commit()
     await db.refresh(garment)
     return garment
+
+
+async def get_garments_by_firestore_id(
+    db: AsyncSession,
+    firestore_product_id: str,
+) -> list[Garment]:
+    """Trả về TẤT CẢ garments theo firestore_product_id (nhiều màu)"""
+    result = await db.execute(
+        select(Garment).where(
+            Garment.firestore_product_id == firestore_product_id,
+            Garment.is_deleted == False,
+        ).order_by(Garment.id)
+    )
+    return result.scalars().all()
 
 
 async def get_all_garments(db: AsyncSession) -> list[Garment]:
@@ -112,6 +135,10 @@ async def update_garment(
         garment.category_id = data.category_id
     if data.store_id is not None:
         garment.store_id = data.store_id
+    if data.firestore_product_id is not None:
+        garment.firestore_product_id = data.firestore_product_id
+    if data.color is not None:
+        garment.color = data.color
 
     if file:
         _delete_glb(garment.public_id)
