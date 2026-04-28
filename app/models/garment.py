@@ -42,3 +42,5 @@ class Garment(Base):
     ar_sessions = relationship("ARSession", back_populates="garment")
     wishlists = relationship("Wishlist", back_populates="garment")
     conversion_events = relationship("ConversionEvent", back_populates="garment")
+    garment_drapes = relationship("GarmentDrape", back_populates="garment")
+    photo_tryon_sessions = relationship("PhotoTryonSession", back_populates="garment")

@@ -32,3 +32,6 @@ class User(Base):
     wishlists = relationship("Wishlist", back_populates="user")
     product_views = relationship("ProductView", back_populates="user")
     conversion_events = relationship("ConversionEvent", back_populates="user")
+    body_profiles = relationship("BodyProfile", back_populates="user")
+    photo_avatars = relationship("PhotoAvatar", back_populates="user")
+    photo_tryon_sessions = relationship("PhotoTryonSession", back_populates="user")
