@@ -178,6 +178,8 @@ async def get_lens_link(db: AsyncSession, garment_id: int) -> dict:
         f"https://www.snapchat.com/lens/{LENS_ID}"
         f"?model_url={garment.model_url}"
         f"&product_id={garment.id}"
+        f"&item_index={garment.item_index or 0}"
+
     )
     return {
         "lens_url": lens_url,
