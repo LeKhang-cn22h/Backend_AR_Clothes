@@ -46,5 +46,9 @@ async def init_db():
     from models.wishlist import Wishlist  # noqa: F401
     from models.product_view import ProductView  # noqa: F401
     from models.conversion_event import ConversionEvent  # noqa: F401
+    from models.body_profile import BodyProfile  # noqa: F401
+    from models.photo_avatar import PhotoAvatar  # noqa: F401
+    from models.garment_drape import GarmentDrape  # noqa: F401
+    from models.photo_tryon_session import PhotoTryonSession  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
