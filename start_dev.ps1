@@ -12,7 +12,7 @@
 
     # ── 2. Chạy ngrok background ─────────────────────────────────────────────────
     Write-Host "[2/4] Khoi dong ngrok..." -ForegroundColor Yellow
-    Start-Process -FilePath "C:\Users\Acer\AppData\Local\Microsoft\WindowsApps\ngrok.exe" -ArgumentList "http 8000" -WindowStyle Hidden
+    Start-Process -FilePath "C:\ngrok\ngrok.exe" -ArgumentList "http 8000" -WindowStyle Hidden
     Start-Sleep -Seconds 4  # Đợi ngrok sẵn sàng
 
     # ── 3. Lấy URL từ ngrok API → cập nhật .env ──────────────────────────────────

@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "Photo Try-On API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Body Profile",
+      "item": [
+        {
+          "name": "Create or Update Body Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/photo-tryon/body-profile?user_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["photo-tryon", "body-profile"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"height\": 170.0,\n  \"weight\": 65.0,\n  \"chest\": 88.0,\n  \"waist\": 72.0,\n  \"hip\": 94.0,\n  \"shoulder\": 40.0,\n  \"arm_length\": 57.0,\n  \"inseam\": 76.0,\n  \"gender\": \"neutral\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Avatar",
+      "item": [
+        {
+          "name": "Generate Avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/photo-tryon/avatar/generate?user_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["photo-tryon", "avatar", "generate"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body_profile_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Avatar Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/photo-tryon/avatar/1?user_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["photo-tryon", "avatar", "1"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Try-On",
+      "item": [
+        {
+          "name": "Create Try-On Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/photo-tryon/tryon?user_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["photo-tryon", "tryon"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_id\": 1,\n  \"garment_id\": 1,\n  \"selected_size\": \"M\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get User Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/photo-tryon/sessions?user_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["photo-tryon", "sessions"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
