@@ -22,6 +22,10 @@ class Store(Base):
     website: Mapped[str | None] = mapped_column(String(500), nullable=True)
     logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     banner_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    manager_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    address_detail: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    latitude: Mapped[float | None] = mapped_column(nullable=True)
+    longitude: Mapped[float | None] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

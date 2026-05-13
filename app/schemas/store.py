@@ -14,6 +14,10 @@ class StoreBase(BaseModel):
     website: Optional[str] = None
     logo_url: Optional[str] = None
     banner_url: Optional[str] = None
+    manager_name: Optional[str] = None
+    address_detail: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     is_active: bool = True
 
 
@@ -30,6 +34,10 @@ class StoreUpdate(BaseModel):
     website: Optional[str] = None
     logo_url: Optional[str] = None
     banner_url: Optional[str] = None
+    manager_name: Optional[str] = None
+    address_detail: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     is_active: Optional[bool] = None
 
 
