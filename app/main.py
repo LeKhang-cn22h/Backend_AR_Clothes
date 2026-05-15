@@ -33,6 +33,10 @@ from routers.wishlists import router as wishlists_router
 from routers.product_views import router as product_views_router
 from routers.conversion_events import router as conversion_events_router
 from routers.photo_tryon import router as photo_tryon_router
+from routers.chatbot import router as chatbot_router
+from routers.chatbot import router as chatbot_router
+from models.chat_session import ChatSession, ChatMessage
+from models.product_embedding import ProductEmbedding
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -83,6 +87,10 @@ app.include_router(wishlists_router)
 app.include_router(product_views_router)
 app.include_router(conversion_events_router)
 app.include_router(photo_tryon_router)
+app.include_router(chatbot_router)
+app.include_router(chatbot_router)
+
+
 
 @app.get("/health")
 def health():
