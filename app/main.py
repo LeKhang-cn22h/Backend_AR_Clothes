@@ -35,8 +35,8 @@ from routers.conversion_events import router as conversion_events_router
 from routers.photo_tryon import router as photo_tryon_router
 from routers.chatbot import router as chatbot_router
 from routers.chatbot import router as chatbot_router
-from models.chat_session import ChatSession, ChatMessage
-from models.product_embedding import ProductEmbedding
+from routers.payment import router as payment_router
+
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -88,7 +88,7 @@ app.include_router(product_views_router)
 app.include_router(conversion_events_router)
 app.include_router(photo_tryon_router)
 app.include_router(chatbot_router)
-app.include_router(chatbot_router)
+app.include_router(payment_router)
 
 
 
