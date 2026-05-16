@@ -30,6 +30,13 @@ class Settings(BaseSettings):
     DATABASE_URL:            str = ""
     GLB_STATIC_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "models")
     BASE_URL: str = "http://localhost:8000"
+
+    VNPAY_TMN_CODE: str
+    VNPAY_HASH_SECRET: str
+    VNPAY_URL: str = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    VNPAY_RETURN_URL: str = "http://localhost:8000/payment/vnpay/callback"
+    FE_BASE_URL: str = "http://localhost:3000"
+
     class Config:
         env_file = ".env"
 
