@@ -16,6 +16,7 @@ class Review(Base):
     firestore_product_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    media_urls: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

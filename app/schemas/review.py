@@ -8,6 +8,7 @@ class ReviewCreate(BaseModel):
     firestore_product_id: str
     rating: int
     comment: Optional[str] = None
+    media_urls: Optional[list[str]] = None
 
     @field_validator("rating")
     @classmethod
@@ -37,9 +38,12 @@ class ReviewResponse(BaseModel):
     firestore_product_id: str
     rating: int
     comment: Optional[str]
+    media_urls: Optional[list[str]] = None
     created_at: datetime
     updated_at: datetime
     is_deleted: bool = False
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class ReviewStatsResponse(BaseModel):

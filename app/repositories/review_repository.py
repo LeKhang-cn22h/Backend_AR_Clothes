@@ -1,8 +1,11 @@
+# review_repository.py
 from typing import Optional
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.review import Review
-from schemas.review import ReviewCreate, ReviewUpdate
+from models.user import User
+from schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
+import json
 
 
 class ReviewRepository:
@@ -10,7 +13,12 @@ class ReviewRepository:
         self.db = db
 
     async def create(self, data: ReviewCreate) -> Review:
-        review = Review(**data.model_dump())
+        review_data = data.model_dump()
+        if data.media_urls is not None:
+            review_data["media_urls"] = json.dumps(data.media_urls)
+        else:
+            review_data["media_urls"] = None
+        review = Review(**review_data)
         self.db.add(review)
         await self.db.commit()
         await self.db.refresh(review)
@@ -22,7 +30,9 @@ class ReviewRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_by_user_and_product(self, user_id: int, firestore_product_id: str) -> Optional[Review]:
+    async def get_by_user_and_product(
+        self, user_id: int, firestore_product_id: str
+    ) -> Optional[Review]:
         result = await self.db.execute(
             select(Review).where(
                 Review.user_id == user_id,
@@ -39,8 +49,16 @@ class ReviewRepository:
         rating: Optional[int] = None,
         skip: int = 0,
         limit: int = 20,
-    ) -> list[Review]:
-        query = select(Review).where(Review.is_deleted == False)
+    ) -> list[ReviewResponse]:
+        query = (
+            select(
+                Review,
+                User.display_name,
+                User.avatar_url,
+            )
+            .join(User, Review.user_id == User.id, isouter=True)
+            .where(Review.is_deleted == False)
+        )
         if firestore_product_id:
             query = query.where(Review.firestore_product_id == firestore_product_id)
         if user_id is not None:
@@ -48,8 +66,38 @@ class ReviewRepository:
         if rating is not None:
             query = query.where(Review.rating == rating)
         query = query.offset(skip).limit(limit).order_by(Review.created_at.desc())
+
         result = await self.db.execute(query)
-        return list(result.scalars().all())
+        rows = result.all()
+
+        reviews = []
+        for row in rows:
+            review = row[0]
+            display_name = row[1]
+            avatar_url = row[2]
+
+            media_urls = None
+            if review.media_urls:
+                try:
+                    media_urls = json.loads(review.media_urls)
+                except Exception:
+                    media_urls = []
+
+            data = ReviewResponse(
+                id=review.id,
+                user_id=review.user_id,
+                firestore_product_id=review.firestore_product_id,
+                rating=review.rating,
+                comment=review.comment,
+                media_urls=media_urls,
+                created_at=review.created_at,
+                updated_at=review.updated_at,
+                is_deleted=review.is_deleted,
+                display_name=display_name,
+                avatar_url=avatar_url,
+            )
+            reviews.append(data)
+        return reviews
 
     async def update(self, id: int, data: ReviewUpdate) -> Optional[Review]:
         review = await self.get_by_id(id)
@@ -99,4 +147,8 @@ class ReviewRepository:
         for r, c in dist_result.all():
             distribution[str(r)] = c
 
-        return {"avg_rating": avg_rating, "total_reviews": total, "distribution": distribution}
+        return {
+            "avg_rating": avg_rating,
+            "total_reviews": total,
+            "distribution": distribution,
+        }
