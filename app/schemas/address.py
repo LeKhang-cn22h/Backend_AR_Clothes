@@ -43,7 +43,7 @@ class AddressResponse(BaseModel):
     user_id: int
     full_name: str
     phone: str
-    address_type: str
+    address_type: Optional[str] = "Nhà riêng" 
     address: str
     city: Optional[str]
     district: Optional[str]

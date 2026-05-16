@@ -12,6 +12,7 @@ class Address(Base):
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
     phone: Mapped[str] = mapped_column(String(20), nullable=False)
     address: Mapped[str] = mapped_column(Text, nullable=False)
+    address_type: Mapped[str] = mapped_column(String(50), default="Nhà riêng", nullable=False, server_default="Nhà riêng")
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     district: Mapped[str | None] = mapped_column(String(100), nullable=True)
     ward: Mapped[str | None] = mapped_column(String(100), nullable=True)
