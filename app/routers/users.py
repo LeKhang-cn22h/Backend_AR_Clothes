@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from repositories.user_repository import UserRepository
@@ -34,6 +34,18 @@ async def get_by_uid(firebase_uid: str, service: UserService = Depends(get_servi
 @router.get("/{id}", response_model=UserResponse)
 async def get_one(id: int, service: UserService = Depends(get_service)):
     return await service.get_by_id(id)
+
+@router.get("/by-firebase-uid/{firebase_uid}")
+async def get_by_firebase_uid(
+    firebase_uid: str,
+    db: AsyncSession = Depends(get_db),
+):
+    from repositories.user_repository import UserRepository
+    repo = UserRepository(db)
+    user = await repo.get_by_firebase_uid(firebase_uid)
+    if not user:
+        raise HTTPException(status_code=404, detail="User không tồn tại")
+    return {"id": user.id}
 
 
 @router.patch("/{id}", response_model=UserResponse)
