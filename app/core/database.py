@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from config import settings
+from sqlalchemy import text
 
 
 def _build_async_url(url: str) -> str:
@@ -50,5 +51,8 @@ async def init_db():
     from models.photo_avatar import PhotoAvatar  # noqa: F401
     from models.garment_drape import GarmentDrape  # noqa: F401
     from models.photo_tryon_session import PhotoTryonSession  # noqa: F401
+    from models.chat_session import ChatSession, ChatMessage      # noqa
+    from models.product_embedding import ProductEmbedding  
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)
