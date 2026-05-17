@@ -21,21 +21,18 @@ class Settings(BaseSettings):
     PORT:               int   = 8000
     CORS_ORIGINS:       list  = ["http://localhost:5173", "http://localhost:3000"]
 
-    CLOUDINARY_CLOUD_NAME:   str = ""
-    CLOUDINARY_API_KEY:      str = ""
-    CLOUDINARY_API_SECRET:   str = ""
+    CLOUDINARY_CLOUD_NAME:    str = ""
+    CLOUDINARY_API_KEY:       str = ""
+    CLOUDINARY_API_SECRET:    str = ""
     CLOUDINARY_UPLOAD_PRESET: str = ""
-    CLOUDINARY_API_URL:        str = ""
+    CLOUDINARY_API_URL:       str = ""
 
-    DATABASE_URL:            str = ""
-    GLB_STATIC_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "models")
-    BASE_URL: str = "http://localhost:8000"
+    DATABASE_URL:       str = ""
+    GLB_STATIC_DIR:     str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "models")
+    BASE_URL:           str = "http://localhost:8000"
 
-    VNPAY_TMN_CODE: str
-    VNPAY_HASH_SECRET: str
-    VNPAY_URL: str = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-    VNPAY_RETURN_URL: str = "http://localhost:8000/payment/vnpay/callback"
-    FE_BASE_URL: str = "http://localhost:3000"
+    STRIPE_SECRET_KEY:  str = ""
+    FE_BASE_URL:        str = "http://localhost:3000"
 
     class Config:
         env_file = ".env"

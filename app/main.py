@@ -45,7 +45,7 @@ from starlette.requests import Request
 async def lifespan(app: FastAPI):
     await init_db()
     os.makedirs(settings.GLB_STATIC_DIR, exist_ok=True)
-    await asyncio.get_event_loop().run_in_executor(None, init_service)
+    # await asyncio.get_event_loop().run_in_executor(None, init_service)
     yield
 
 

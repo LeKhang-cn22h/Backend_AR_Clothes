@@ -1,11 +1,10 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class VNPayCreateRequest(BaseModel):
-    order_id:str
-    mount:float
-    order_desc:Optional[str] = "Thanh toán đơn hàng"
-    bank_code:Optional[str] = None
+class StripeCreateRequest(BaseModel):
+    order_id: str
+    amount: float
+    order_desc: Optional[str] = "Thanh toan don hang GlowUp"
 
-class VNPayCreateResponse(BaseModel):
+class StripeCreateResponse(BaseModel):
     payment_url: str
