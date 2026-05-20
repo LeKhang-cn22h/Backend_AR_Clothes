@@ -10,23 +10,8 @@ class PhotoTryonSessionRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(
-        self,
-        user_id: Optional[int],
-        avatar_id: int,
-        garment_id: int,
-        selected_size: str,
-        suggested_size: Optional[str] = None,
-        fit_warnings: Optional[list] = None,
-    ) -> PhotoTryonSession:
-        session = PhotoTryonSession(
-            user_id=user_id,
-            avatar_id=avatar_id,
-            garment_id=garment_id,
-            selected_size=selected_size,
-            suggested_size=suggested_size,
-            fit_warnings=fit_warnings,
-        )
+    async def create(self, data: dict) -> PhotoTryonSession:
+        session = PhotoTryonSession(**data)
         self.db.add(session)
         await self.db.commit()
         await self.db.refresh(session)
@@ -41,7 +26,9 @@ class PhotoTryonSessionRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_by_user_id(self, user_id: int) -> list[PhotoTryonSession]:
+    async def list_by_user(
+        self, user_id: int, skip: int = 0, limit: int = 20
+    ) -> list[PhotoTryonSession]:
         result = await self.db.execute(
             select(PhotoTryonSession)
             .where(
@@ -49,16 +36,15 @@ class PhotoTryonSessionRepository:
                 PhotoTryonSession.is_deleted == False,
             )
             .order_by(PhotoTryonSession.created_at.desc())
+            .offset(skip)
+            .limit(limit)
         )
         return list(result.scalars().all())
 
-    async def get_by_avatar_id(self, avatar_id: int) -> list[PhotoTryonSession]:
-        result = await self.db.execute(
-            select(PhotoTryonSession)
-            .where(
-                PhotoTryonSession.avatar_id == avatar_id,
-                PhotoTryonSession.is_deleted == False,
-            )
-            .order_by(PhotoTryonSession.created_at.desc())
-        )
-        return list(result.scalars().all())
+    async def soft_delete(self, session_id: int) -> Optional[PhotoTryonSession]:
+        session = await self.get_by_id(session_id)
+        if not session:
+            return None
+        session.is_deleted = True
+        await self.db.commit()
+        return session

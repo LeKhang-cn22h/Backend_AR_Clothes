@@ -34,4 +34,4 @@ class BodyProfile(Base):
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="body_profiles")
-    photo_avatars = relationship("PhotoAvatar", back_populates="body_profile")
+

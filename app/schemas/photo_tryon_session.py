@@ -1,30 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel, ConfigDict
-
-
-class TryonRequest(BaseModel):
-    avatar_id: int
-    garment_id: int
-    selected_size: str
-
-
-class FitWarning(BaseModel):
-    severity: str
-    message: str
-    delta_cm: float
-
-
-class TryonResponse(BaseModel):
-    session_id: int
-    avatar_id: int
-    garment_id: int
-    selected_size: str
-    suggested_size: Optional[str]
-    fit_warnings: list[FitWarning]
-    garment_drape_glb_url: Optional[str]
-    heatmap_glb_url: Optional[str]
 
 
 class PhotoTryonSessionResponse(BaseModel):
@@ -32,9 +9,24 @@ class PhotoTryonSessionResponse(BaseModel):
 
     id: int
     user_id: Optional[int]
-    avatar_id: int
     garment_id: int
-    selected_size: str
+    person_image_url: Optional[str]
+    result_image_url: Optional[str]
+    result_public_id: Optional[str]
+    cloth_type: str
+    selected_size: Optional[str]
     suggested_size: Optional[str]
-    fit_warnings: Optional[list[FitWarning]]
+    fit_warnings: Optional[list[Any]]
     created_at: datetime
+
+
+class SmartTryonResponse(BaseModel):
+    session_id: Optional[int]
+    result_image_url: Optional[str]
+    public_id: Optional[str]
+    width: int
+    height: int
+    input_type: str  # "full_body" | "face_only"
+    suggested_size: Optional[str] = None
+    fit_warnings: Optional[list[Any]] = None
+    created_at: Optional[str] = None

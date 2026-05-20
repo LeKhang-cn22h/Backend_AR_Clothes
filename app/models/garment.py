@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,6 +33,7 @@ class Garment(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    sizes: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     cloth_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     cloth_image_public_id: Mapped[str | None] = mapped_column(String, nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -44,3 +45,5 @@ class Garment(Base):
     conversion_events = relationship("ConversionEvent", back_populates="garment")
     garment_drapes = relationship("GarmentDrape", back_populates="garment")
     photo_tryon_sessions = relationship("PhotoTryonSession", back_populates="garment")
+
+

@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     BASE_DIR:           str   = os.path.dirname(os.path.dirname(__file__))
-    CATVTON_DIR:        str   = os.path.join(os.path.dirname(os.path.dirname(__file__)), "CatVTON")
     MODEL_CACHE:        str   = os.path.join(os.path.dirname(os.path.dirname(__file__)), "model_cache")
 
     SD_INPAINTING_PATH: str   = ""
@@ -34,6 +33,15 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY:  str = ""
     FE_BASE_URL:        str = "http://localhost:3000"
 
+    FITDIT_DIR:       str = "D:/FitDiT"
+    FITDIT_CKPT_PATH: str = "D:/FitDiT/ckpts"
+    CATVTON_DIR:      str = ""
+
+    INSIGHTFACE_HOME:   str = "C:/Users/Acer/.insightface"
+    BODY_TEMPLATES_DIR: str = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "assets", "templates"
+    )
+
     class Config:
         env_file = ".env"
 
@@ -41,5 +49,3 @@ settings = Settings()
 
 if not settings.SD_INPAINTING_PATH:
     settings.SD_INPAINTING_PATH = os.path.join(settings.MODEL_CACHE, "sd-inpainting")
-if not settings.CATVTON_CKPT_PATH:
-    settings.CATVTON_CKPT_PATH = os.path.join(settings.MODEL_CACHE, "CatVTON")
