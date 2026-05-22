@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-from services.catvton import CatVTONService
-
-_service: CatVTONService | None = None
+import services.fitdit_service as fitdit_service
 
 
-def get_catvton_service() -> CatVTONService:
-    return _service
+def get_fitdit_service():
+    return fitdit_service
 
 
 def init_service():
-    global _service
-    _service = CatVTONService()
-    _service.load()
+    print(f"[init] FitDiT target: {fitdit_service._get_base_url()}")
+    print("[init] Skipping local model load — using Colab HTTP backend")
