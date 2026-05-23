@@ -3,11 +3,11 @@ fit_assessment_service.py
 -------------------------
 So sánh body measurements vs garment sizes → đánh giá fit theo ease allowance.
 
-Ease (cm)              | tight     | good       | loose
------------------------|-----------|------------|----------
-chest                  | -2..2     | 2..8       | 8..∞
-waist                  | -2..2     | 2..6       | 6..∞
-hip                    | -2..2     | 2..8       | 8..∞
+Ease (cm)              | very_tight | tight     | good      | loose      | very_loose
+-----------------------|-------------|-----------|------------|-------------|-------------
+chest                  | < -2        | -2..2     | 2..8       | 8..12       | > 12
+waist                  | < -2       | -2..2     | 2..6       | 6..12       | > 12
+hip                    | < -2        | -2..2     | 2..8       | 8..12       | > 12
 """
 
 from __future__ import annotations
@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 # ══════════════════════════════════════════════════════════════════════════════
 
 FIT_EASE = {
-    "chest": {"tight": (-2, 2), "good": (2, 8),  "loose": (8, 999)},
-    "waist": {"tight": (-2, 2), "good": (2, 6),  "loose": (6, 999)},
-    "hip":   {"tight": (-2, 2), "good": (2, 8),  "loose": (8, 999)},
+    "chest": {"ver_tight":(-999,-2),"tight": (-2, 2), "good": (2, 8),  "loose": (8, 12), "very_loose":(12,999)},
+    "waist": {"ver_tight":(-999,-2),"tight": (-2, 2), "good": (2, 6),  "loose": (6, 12), "very_loose":(12,999)},
+    "hip":   {"ver_tight":(-999,-2),"tight": (-2, 2), "good": (2, 8),  "loose": (8, 12), "very_loose":(12,999)},
 }
 
 SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
@@ -59,9 +59,11 @@ def _aggregate_overall(statuses: list[str]) -> str:
 
 def _recommendation(overall: str) -> str:
     return {
+        "very_tight":"Rất chật, nên chọn size lơn hơn",
         "tight":   "Hơi chật, có thể khó mặc — nên cân nhắc size lớn hơn",
         "good":    "Vừa vặn, có thể thoải mái mặc",
         "loose":   "Hơi rộng — bạn có thể chọn size nhỏ hơn nếu thích ôm",
+        "loose": "Quá rộng, bên chọn size nhỏ hơn",
         "unknown": "Không đủ dữ liệu để đánh giá",
     }[overall]
 
@@ -70,7 +72,7 @@ def _suggest_size(
     body: dict, sizes_spec: dict[str, dict]
 ) -> Optional[str]:
     """Chọn size có tổng diff trong vùng "good" nhiều nhất."""
-    best: Optional[tuple[int, str]] = None
+    best: Optional[tuple[int, str]] = None  
     for size, spec in sizes_spec.items():
         if not isinstance(spec, dict):
             continue

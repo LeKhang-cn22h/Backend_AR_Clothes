@@ -27,11 +27,7 @@ class User(Base):
 
     stores = relationship("Store", back_populates="user")
     addresses = relationship("Address", back_populates="user")
-    ar_sessions = relationship("ARSession", back_populates="user")
     reviews = relationship("Review", back_populates="user")
-    wishlists = relationship("Wishlist", back_populates="user")
     product_views = relationship("ProductView", back_populates="user")
     conversion_events = relationship("ConversionEvent", back_populates="user")
     body_profiles = relationship("BodyProfile", back_populates="user")
-    photo_avatars = relationship("PhotoAvatar", back_populates="user")
-    photo_tryon_sessions = relationship("PhotoTryonSession", back_populates="user")

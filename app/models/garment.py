@@ -14,8 +14,6 @@ class Garment(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    model_url: Mapped[str] = mapped_column(String(1000), nullable=False)
-    public_id: Mapped[str] = mapped_column(String(500), nullable=False)
     item_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
     color: Mapped[str | None] = mapped_column(String(100), nullable=True)
     firestore_product_id: Mapped[str | None] = mapped_column(
@@ -39,8 +37,3 @@ class Garment(Base):
 
     category = relationship("GarmentCategory", back_populates="garments")
     store = relationship("Store", back_populates="garments")
-    ar_sessions = relationship("ARSession", back_populates="garment")
-    wishlists = relationship("Wishlist", back_populates="garment")
-    conversion_events = relationship("ConversionEvent", back_populates="garment")
-    garment_drapes = relationship("GarmentDrape", back_populates="garment")
-    photo_tryon_sessions = relationship("PhotoTryonSession", back_populates="garment")

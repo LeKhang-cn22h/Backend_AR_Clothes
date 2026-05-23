@@ -31,5 +31,4 @@ class BodyProfileResponse(BaseModel):
     arm_length: Optional[Decimal]
     inseam: Optional[Decimal]
     gender: str
-    beta_hash: Optional[str]
     created_at: datetime

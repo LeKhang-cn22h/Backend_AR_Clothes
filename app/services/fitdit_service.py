@@ -17,14 +17,8 @@ logger = logging.getLogger(__name__)
 # ── Config ────────────────────────────────────────────────────────────────────
 
 # Set URL này sau khi Colab Cell 7 chạy xong
-# Có thể override bằng env var: FITDIT_COLAB_URL=https://xxxx.ngrok-free.app
-FITDIT_COLAB_URL: str = os.getenv(
-    "FITDIT_COLAB_URL",
-    "https://YOUR_NGROK_URL_HERE.ngrok-free.app",  # ← paste URL từ Colab vào đây
-)
-
 # Timeout cho inference (FitDiT trên T4 ~30-60s per request)
-REQUEST_TIMEOUT_S: int = int(os.getenv("FITDIT_TIMEOUT", "120"))
+REQUEST_TIMEOUT_S: int = int(os.getenv("FITDIT_TIMEOUT", "3000"))
 
 # Retry config
 MAX_RETRIES: int = 2
@@ -54,8 +48,13 @@ def _load_image(path_or_pil) -> Image.Image:
 
 
 def _get_base_url() -> str:
-    """Trả về base URL, strip trailing slash."""
-    return FITDIT_COLAB_URL.rstrip("/")
+    try:
+        from config import settings
+        if settings.FITDIT_COLAB_URL:
+            return settings.FITDIT_COLAB_URL.rstrip("/")
+    except Exception:
+        pass
+    return os.getenv("FITDIT_COLAB_URL", "").rstrip("/")
 
 
 def _make_client() -> httpx.Client:

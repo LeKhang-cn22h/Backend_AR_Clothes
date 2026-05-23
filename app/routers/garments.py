@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
@@ -20,7 +20,6 @@ async def create(
     store_id: Optional[uuid.UUID] = Form(None),
     firestore_product_id: Optional[str] = Form(None),
     color: Optional[str] = Form(None),
-    file: UploadFile = File(...),
     cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -33,7 +32,7 @@ async def create(
         firestore_product_id=firestore_product_id,
         color=color,
     )
-    return await svc.create_garment(db, data, file, cloth_image)
+    return await svc.create_garment(db, data, cloth_image)
 
 
 @router.get("/", response_model=list[GarmentResponse])
@@ -69,7 +68,6 @@ async def update(
     store_id: Optional[uuid.UUID] = Form(None),
     firestore_product_id: Optional[str] = Form(None),
     color: Optional[str] = Form(None),
-    file: Optional[UploadFile] = File(None),
     cloth_image: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -82,7 +80,7 @@ async def update(
         firestore_product_id=firestore_product_id,
         color=color,
     )
-    return await svc.update_garment(db, garment_id, data, file, cloth_image)
+    return await svc.update_garment(db, garment_id, data, cloth_image)
 
 
 @router.delete("/{garment_id}")

@@ -31,8 +31,6 @@ class GarmentResponse(BaseModel):
     id: int
     name: str
     description: Optional[str]
-    model_url: str
-    public_id: str
     item_index: Optional[int]
     category_id: Optional[int]
     store_id: Optional[uuid.UUID]
@@ -47,5 +45,4 @@ class GarmentResponse(BaseModel):
 
 class LensLinkResponse(BaseModel):
     lens_url: str
-    model_url: str
     product_id: int

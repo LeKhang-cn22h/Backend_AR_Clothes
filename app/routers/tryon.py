@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
 import base64
 import io
 import time
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
 from repositories.body_profile_repository import BodyProfileRepository
 from repositories.garment_repository import GarmentRepository
-from repositories.photo_tryon_session_repository import PhotoTryonSessionRepository
-from schemas.photo_tryon_session import PhotoTryonSessionResponse, SmartTryonResponse
 from services.fit_assessment_service import FitAssessmentService
 import services.fitdit_service as fitdit_service
 import services.cloudinary_service as cloud
@@ -128,7 +125,7 @@ async def _download_cloth_image(url: str) -> Image.Image:
 # ════════════════════════════════════════════════════════════════════
 # POST /tryon/smart
 # ════════════════════════════════════════════════════════════════════
-@router.post("/smart", response_model=SmartTryonResponse)
+@router.post("/smart")
 async def tryon_smart(
     person: UploadFile,
     garment_id: int = Form(...),
@@ -160,9 +157,6 @@ async def tryon_smart(
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Khong tai duoc cloth image: {e}")
 
-    input_type = "direct"
-    person_for_tryon = person_image
-
     # 3. Fit assessment (optional)
     suggested_size: Optional[str] = None
     fit_warnings: Optional[list] = None
@@ -192,10 +186,10 @@ async def tryon_smart(
             except HTTPException:
                 pass
 
-    # 4. Run FitDiT qua Colab
+    # 4. Run FitDiT
     try:
         result: Image.Image = await fitdit_service.try_on_from_pil_async(
-            person_img=person_for_tryon,
+            person_img=person_image,
             garment_img=cloth_image,
             category=cloth_type,
             num_steps=num_steps,
@@ -211,95 +205,22 @@ async def tryon_smart(
 
     # 5. Upload result lên Cloudinary
     timestamp = int(time.time())
-    public_id_suffix = f"{timestamp}_{seed}_{garment_id}"
     upload_info = None
     try:
         upload_info = cloud.upload_image(
             result,
             folder="tryon_results",
-            public_id=f"tryon_results/{public_id_suffix}",
+            public_id=f"tryon_results/{timestamp}_{seed}_{garment_id}",
         )
     except Exception as e:
         print(f"[smart] Upload Cloudinary that bai: {e}")
 
-    # 6. Lưu session
-    session_repo = PhotoTryonSessionRepository(db)
-    session = await session_repo.create({
-        "user_id": user_id,
-        "garment_id": garment_id,
-        "person_image_url": None,
+    return {
         "result_image_url": upload_info["url"] if upload_info else None,
-        "result_public_id": upload_info["public_id"] if upload_info else None,
-        "cloth_type": cloth_type,
-        "selected_size": None,
+        "public_id": upload_info["public_id"] if upload_info else None,
+        "width": width,
+        "height": height,
         "suggested_size": suggested_size,
         "fit_warnings": fit_warnings,
-    })
-
-    return SmartTryonResponse(
-        session_id=session.id,
-        result_image_url=upload_info["url"] if upload_info else None,
-        public_id=upload_info["public_id"] if upload_info else None,
-        width=width,
-        height=height,
-        input_type=input_type,
-        suggested_size=suggested_size,
-        fit_warnings=fit_warnings,
-        created_at=upload_info["created_at"] if upload_info else None,
-    )
-
-
-# ════════════════════════════════════════════════════════════════════
-# CRUD photo_tryon_sessions
-# ════════════════════════════════════════════════════════════════════
-@router.get("/sessions", response_model=list[PhotoTryonSessionResponse])
-async def list_sessions(
-    user_id: int = Query(...),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
-    db: AsyncSession = Depends(get_db),
-):
-    repo = PhotoTryonSessionRepository(db)
-    return await repo.list_by_user(user_id, skip=skip, limit=limit)
-
-
-@router.get("/sessions/{session_id}", response_model=PhotoTryonSessionResponse)
-async def get_session(
-    session_id: int,
-    db: AsyncSession = Depends(get_db),
-):
-    repo = PhotoTryonSessionRepository(db)
-    session = await repo.get_by_id(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Khong tim thay session")
-    return session
-
-
-@router.delete("/sessions/{session_id}")
-async def delete_session(
-    session_id: int,
-    user_id: Optional[int] = Query(default=None),
-    db: AsyncSession = Depends(get_db),
-):
-    repo = PhotoTryonSessionRepository(db)
-    session = await repo.get_by_id(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Khong tim thay session")
-    if (
-        user_id is not None
-        and session.user_id is not None
-        and session.user_id != user_id
-    ):
-        raise HTTPException(status_code=403, detail="Khong co quyen xoa session nay")
-
-    public_id = session.result_public_id
-    await repo.soft_delete(session_id)
-
-    cloud_result = None
-    if public_id:
-        try:
-            cloud_result = cloud.delete_image(public_id)
-        except Exception as e:
-            cloud_result = {"error": str(e)}
-
-    return {"session_id": session_id, "deleted": True, "cloudinary": cloud_result}
+        "created_at": upload_info["created_at"] if upload_info else None,
+    }

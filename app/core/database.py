@@ -42,15 +42,9 @@ async def init_db():
     from models.garment_category import GarmentCategory  # noqa: F401
     from models.garment import Garment  # noqa: F401
     from models.address import Address  # noqa: F401
-    from models.ar_session import ARSession  # noqa: F401
     from models.review import Review  # noqa: F401
-    from models.wishlist import Wishlist  # noqa: F401
     from models.product_view import ProductView  # noqa: F401
-    from models.conversion_event import ConversionEvent  # noqa: F401
     from models.body_profile import BodyProfile  # noqa: F401
-    from models.photo_avatar import PhotoAvatar  # noqa: F401
-    from models.garment_drape import GarmentDrape  # noqa: F401
-    from models.photo_tryon_session import PhotoTryonSession  # noqa: F401
     from models.chat_session import ChatSession, ChatMessage      # noqa
     from models.product_embedding import ProductEmbedding  
     async with engine.begin() as conn:
