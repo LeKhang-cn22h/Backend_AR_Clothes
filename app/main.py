@@ -32,6 +32,7 @@ from routers.addresses import router as addresses_router
 from routers.reviews import router as reviews_router
 from routers.chatbot import router as chatbot_router
 from routers.payment import router as payment_router
+from routers.fit_router import router as fit_router
 
 
 @asynccontextmanager
@@ -65,6 +66,7 @@ app.include_router(addresses_router)
 app.include_router(reviews_router)
 app.include_router(chatbot_router)
 app.include_router(payment_router)
+app.include_router(fit_router)
 
 
 @app.get("/health")
