@@ -47,6 +47,8 @@ async def init_db():
     from models.body_profile import BodyProfile  # noqa: F401
     from models.chat_session import ChatSession, ChatMessage      # noqa
     from models.product_embedding import ProductEmbedding  
+    from models.garment_size_spec import GarmentSizeSpec  
+    from models.tryon_history import TryonHistory  
     async with engine.begin() as conn:
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)

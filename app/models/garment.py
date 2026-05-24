@@ -37,3 +37,5 @@ class Garment(Base):
 
     category = relationship("GarmentCategory", back_populates="garments")
     store = relationship("Store", back_populates="garments")
+    size_specs= relationship("GarmentSizeSpec", back_populates="garment", cascade="all, delete-orphan",lazy="selectin")
+    tryon_history = relationship("TryonHistory", back_populates="garment", lazy="dynamic")
