@@ -37,15 +37,6 @@ class BodyProfileRepository:
         )
         return result.scalars().first()
 
-    async def get_by_beta_hash(self, beta_hash: str) -> Optional[BodyProfile]:
-        result = await self.db.execute(
-            select(BodyProfile).where(
-                BodyProfile.beta_hash == beta_hash,
-                BodyProfile.is_deleted == False,
-            )
-        )
-        return result.scalars().first()
-
     async def update(self, profile_id: int, **kwargs) -> Optional[BodyProfile]:
         profile = await self.get_by_id(profile_id)
         if not profile:
@@ -55,13 +46,6 @@ class BodyProfileRepository:
         await self.db.commit()
         await self.db.refresh(profile)
         return profile
-
-    async def update_beta_cache(
-        self, profile_id: int, beta_cache: dict, beta_hash: str
-    ) -> Optional[BodyProfile]:
-        return await self.update(
-            profile_id, beta_cache=beta_cache, beta_hash=beta_hash
-        )
 
     async def soft_delete(self, profile_id: int) -> bool:
         profile = await self.get_by_id(profile_id)

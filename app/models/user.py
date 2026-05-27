@@ -28,6 +28,5 @@ class User(Base):
     stores = relationship("Store", back_populates="user")
     addresses = relationship("Address", back_populates="user")
     reviews = relationship("Review", back_populates="user")
-    product_views = relationship("ProductView", back_populates="user")
     body_profiles = relationship("BodyProfile", back_populates="user")
     tryon_history = relationship("TryonHistory", back_populates="user", lazy="dynamic")

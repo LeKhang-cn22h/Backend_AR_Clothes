@@ -43,7 +43,6 @@ async def init_db():
     from models.garment import Garment  # noqa: F401
     from models.address import Address  # noqa: F401
     from models.review import Review  # noqa: F401
-    from models.product_view import ProductView  # noqa: F401
     from models.body_profile import BodyProfile  # noqa: F401
     from models.chat_session import ChatSession, ChatMessage      # noqa
     from models.product_embedding import ProductEmbedding  

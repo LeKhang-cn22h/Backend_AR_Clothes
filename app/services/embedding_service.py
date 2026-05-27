@@ -38,32 +38,25 @@ def embed_text(text: str) -> list[float]:
 
 
 def build_text_input(data: dict) -> str:
-    """
-    Tạo text input cho embedding — ưu tiên name và category.
-    Format: [category] name | brand | description ngắn
-    """
-    name     = data.get("name", "")
-    brand    = data.get("brand", "")
-    desc     = data.get("description", "")
-    category = data.get("category", "")
-    gender   = data.get("gender", "")
-
-    # Lấy 100 ký tự đầu description để tránh noise
+    name       = data.get("name", "")
+    brand      = data.get("brand", "")
+    desc       = data.get("description", "")
+    category   = data.get("category", "")
+    gender     = data.get("gender", "")
     short_desc = desc[:100] if desc else ""
 
-    # Ưu tiên name + category + gender + brand
     parts = []
-    if category: parts.append(f"[{category}]")
-    if gender:   parts.append(f"[{gender}]")
+    if category:   parts.append(f"[{category}]")
+    if gender:     parts.append(f"[{gender}]")
     parts.append(name)
-    if brand:    parts.append(brand)
+    if brand:      parts.append(brand)
     if short_desc: parts.append(short_desc)
 
     return " | ".join(parts)
 
 
 def embed_image_from_url(image_url: str) -> list[float] | None:
-    """Download ảnh → base64 → embed bằng nomic-embed-vision."""
+    """Download ảnh → base64 → embed bằng nomic-embed-vision. Dùng cho sync_all_products."""
     try:
         r = httpx.get(image_url, timeout=15)
         r.raise_for_status()
@@ -75,13 +68,6 @@ def embed_image_from_url(image_url: str) -> list[float] | None:
         return None
 
 
-def embed_image_from_bytes(image_bytes: bytes) -> list[float]:
-    """Embed ảnh từ bytes (dùng cho image search)."""
-    b64 = base64.b64encode(image_bytes).decode()
-    resp = ollama.embed(model=IMAGE_MODEL, input=b64)
-    return resp["embeddings"][0]
-
-
 async def sync_all_products(repo: EmbeddingRepository) -> dict:
     db_fs = _get_firestore()
     docs  = db_fs.collection("products").stream()
@@ -91,14 +77,13 @@ async def sync_all_products(repo: EmbeddingRepository) -> dict:
 
     for doc in docs:
         try:
-            data     = doc.to_dict()
-            pid      = doc.id
-            name     = data.get("name", "")
-            brand    = data.get("brand", "")
-            price    = data.get("price", 0)
-            images   = data.get("images", [])
+            data   = doc.to_dict()
+            pid    = doc.id
+            name   = data.get("name", "")
+            brand  = data.get("brand", "")
+            price  = data.get("price", 0)
+            images = data.get("images", [])
 
-            # Dùng build_text_input để embed đúng hơn
             text_input = build_text_input(data)
             text_vec   = embed_text(text_input)
             print(f"[sync] text_input: {text_input[:80]}")
@@ -109,11 +94,11 @@ async def sync_all_products(repo: EmbeddingRepository) -> dict:
 
             await repo.upsert({
                 "firestore_product_id": pid,
-                "name":           name,
-                "brand":          brand,
-                "price":          price,
-                "images_json":    json.dumps(images),
-                "text_embedding": text_vec,
+                "name":            name,
+                "brand":           brand,
+                "price":           price,
+                "images_json":     json.dumps(images),
+                "text_embedding":  text_vec,
                 "image_embedding": image_vec,
             })
             success += 1

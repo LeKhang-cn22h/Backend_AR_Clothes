@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(D:\\\\NCKhoc\\\\vsl-recognition-project\\\\venv\\\\Scripts\\\\pip.exe install *)"
+      "Bash(D:\\\\NCKhoc\\\\vsl-recognition-project\\\\venv\\\\Scripts\\\\pip.exe install *)",
+      "PowerShell(python -c \"import sys; sys.path.insert\\(0, 'app'\\); from app import main; print\\('OK - import passed'\\)\")"
     ]
   }
 }

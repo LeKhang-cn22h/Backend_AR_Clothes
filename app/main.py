@@ -13,7 +13,6 @@ print("sys.path after:", sys.path[:5])
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -33,12 +32,12 @@ from routers.reviews import router as reviews_router
 from routers.chatbot import router as chatbot_router
 from routers.payment import router as payment_router
 from routers.fit_router import router as fit_router
+from routers.body_profiles import router as body_profiles_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    os.makedirs(settings.GLB_STATIC_DIR, exist_ok=True)
     yield
 
 
@@ -54,7 +53,6 @@ class NgrokHeaderMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(NgrokHeaderMiddleware)
-app.mount("/static/models", StaticFiles(directory=settings.GLB_STATIC_DIR, check_dir=False), name="glb_models")
 
 app.include_router(tryon_router)
 app.include_router(images_router)
@@ -67,6 +65,7 @@ app.include_router(reviews_router)
 app.include_router(chatbot_router)
 app.include_router(payment_router)
 app.include_router(fit_router)
+app.include_router(body_profiles_router)
 
 
 @app.get("/health")

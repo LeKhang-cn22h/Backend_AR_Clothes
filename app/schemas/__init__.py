@@ -8,12 +8,6 @@ from schemas.garment_category import (
 from schemas.garment import GarmentCreate, GarmentUpdate, GarmentResponse, LensLinkResponse
 from schemas.address import AddressCreate, AddressUpdate, AddressResponse
 from schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse, ReviewStatsResponse
-from schemas.product_view import (
-    ProductViewCreate,
-    ProductViewResponse,
-    ProductViewCountResponse,
-    TopProductResponse,
-)
 
 __all__ = [
     "UserCreate",
@@ -37,10 +31,4 @@ __all__ = [
     "ReviewUpdate",
     "ReviewResponse",
     "ReviewStatsResponse",
-    "ProductViewCreate",
-    "ProductViewResponse",
-    "ProductViewCountResponse",
-    "TopProductResponse",
-    "FunnelResponse",
-    "OverviewResponse",
 ]

@@ -3,7 +3,7 @@ import asyncio
 import ollama
 from repositories.chat_repository import ChatRepository
 from repositories.embedding_repository import EmbeddingRepository
-from services.embedding_service import embed_text, embed_image_from_url, embed_image_from_bytes
+from services.embedding_service import embed_text
 from schemas.chatbot import ProductOut
 
 MODEL = "qwen2.5:7b"
@@ -20,7 +20,6 @@ Nhiệm vụ:
 Nếu không có sản phẩm phù hợp, hãy nói thật và hỏi thêm nhu cầu của khách.
 QUAN TRỌNG: Bạn PHẢI trả lời hoàn toàn bằng tiếng Việt. Tuyệt đối không dùng tiếng Anh, tiếng Trung."""
 
-# ── Keyword filter ────────────────────────────────────────────────
 EXCLUDE_MAP = {
     "áo": ["quần", "short", "jean", "kaki", "baggy", "legging"],
     "quần": ["áo", "polo", "len", "sơ mi", "khoác", "blazer", "blouse"],
@@ -32,27 +31,21 @@ EXCLUDE_MAP = {
 def _keyword_filter(rows: list[dict], query: str) -> list[dict]:
     query_lower = query.lower()
     exclude_words: list[str] = []
-
     for category, excludes in EXCLUDE_MAP.items():
         if category in query_lower:
             exclude_words = excludes
             break
-
     if not exclude_words:
         return rows
-
-    filtered = [
+    return [
         r for r in rows
         if not any(w in (r.get("name") or "").lower() for w in exclude_words)
     ]
-    return filtered
 
 
 def _build_query_text(message: str) -> str:
-    """Thêm prefix category + gender vào query để embed chính xác hơn."""
     msg = message.lower()
     prefix_parts = []
-
     if any(w in msg for w in ["áo", "shirt", "blouse", "polo", "len", "sơ mi", "khoác", "blazer"]):
         prefix_parts.append("[áo]")
     elif any(w in msg for w in ["quần", "short", "jean", "kaki", "baggy", "legging"]):
@@ -63,23 +56,16 @@ def _build_query_text(message: str) -> str:
         prefix_parts.append("[váy]")
     elif any(w in msg for w in ["giày", "dép", "sandal", "boot"]):
         prefix_parts.append("[giày]")
-
     if any(w in msg for w in ["nữ", "female", "cô", "girl"]):
         prefix_parts.append("[Female]")
     elif any(w in msg for w in ["nam", "male", "anh", "boy"]):
         prefix_parts.append("[Male]")
-
-    prefix = " ".join(prefix_parts)
-    return f"{prefix} {message}".strip()
+    return f"{' '.join(prefix_parts)} {message}".strip()
 
 
 def warmup_model():
     try:
-        ollama.chat(
-            model=MODEL,
-            messages=[{"role": "user", "content": "hi"}],
-            options={"num_predict": 1},
-        )
+        ollama.chat(model=MODEL, messages=[{"role": "user", "content": "hi"}], options={"num_predict": 1})
         print(f"[chatbot] ✓ Model {MODEL} warm up xong")
     except Exception as e:
         print(f"[chatbot] ✗ Warm up lỗi: {e}")
@@ -96,12 +82,11 @@ def _format_context(products: list[dict]) -> str:
 
 
 def _to_product_out(row: dict) -> ProductOut:
-    images_json = row.get("images_json") or "[]"
     return ProductOut(
         id=row["firestore_product_id"],
         name=row.get("name", ""),
         price=row.get("price", 0),
-        images=images_json,
+        images=row.get("images_json") or "[]",
         brand=row.get("brand", ""),
         score=round(float(row.get("score", 0)), 4),
     )
@@ -141,23 +126,17 @@ class ChatbotService:
 
     async def chat(self, session_id: int, user_id: int, message: str) -> dict:
         try:
-            # Build query text với prefix category
             query_text = _build_query_text(message)
             print(f"[chat] query_text: {query_text}")
 
-            # Song song: lấy history + embed query
             history, query_vec = await asyncio.gather(
                 self.chat_repo.get_messages(session_id),
                 asyncio.get_event_loop().run_in_executor(None, embed_text, query_text),
             )
-            print(f"[chat] history={len(history)} msgs, session={session_id}")
 
-            # Vector search — lấy top 3 rồi filter
             rows = await self.embed_repo.search_by_text(query_vec, top_k=3)
             rows = _keyword_filter(rows, message)
-            # Chỉ giữ tối đa 2 sản phẩm liên quan nhất
             rows = rows[:2]
-            print(f"[chat] found {len(rows)} products after filter")
 
             context = _format_context(rows)
             msgs = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -168,9 +147,7 @@ class ChatbotService:
                 "content": f"{message}\n\n[Sản phẩm có sẵn:]\n{context}",
             })
 
-            print(f"[chat] calling ollama...")
             reply = await asyncio.get_event_loop().run_in_executor(None, _call_ollama, msgs)
-            print(f"[chat] ollama replied: {reply[:50]}")
 
             products     = [_to_product_out(r) for r in rows]
             products_str = json.dumps([p.model_dump() for p in products], ensure_ascii=False)
@@ -194,12 +171,13 @@ class ChatbotService:
             traceback.print_exc()
             raise
 
-    async def search_by_image_url(self, image_url: str, top_k: int = 5) -> list[ProductOut]:
-        vec  = await asyncio.get_event_loop().run_in_executor(None, embed_image_from_url, image_url)
-        rows = await self.embed_repo.search_by_image(vec, top_k=top_k)
-        return [_to_product_out(r) for r in rows]
+    async def get_embeddings(self, skip: int, limit: int, search: str = "") -> dict:
+        items = await self.embed_repo.get_all(skip, limit, search)
+        total = await self.embed_repo.count(search)
+        return {"items": items, "total": total, "skip": skip, "limit": limit}
 
-    async def search_by_image_bytes(self, image_bytes: bytes, top_k: int = 5) -> list[ProductOut]:
-        vec  = await asyncio.get_event_loop().run_in_executor(None, embed_image_from_bytes, image_bytes)
-        rows = await self.embed_repo.search_by_image(vec, top_k=top_k)
-        return [_to_product_out(r) for r in rows]
+    async def get_embedding_stats(self) -> dict:
+        return await self.embed_repo.get_stats()
+
+    async def delete_embedding(self, firestore_product_id: str) -> None:
+        await self.embed_repo.delete(firestore_product_id)

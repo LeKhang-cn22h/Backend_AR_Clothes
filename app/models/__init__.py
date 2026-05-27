@@ -4,7 +4,6 @@ from models.garment_category import GarmentCategory
 from models.garment import Garment
 from models.address import Address
 from models.review import Review
-from models.product_view import ProductView
 from models.body_profile import BodyProfile
 
 __all__ = [
@@ -14,6 +13,5 @@ __all__ = [
     "Garment",
     "Address",
     "Review",
-    "ProductView",
     "BodyProfile",
 ]

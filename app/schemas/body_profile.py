@@ -32,3 +32,5 @@ class BodyProfileResponse(BaseModel):
     inseam: Optional[Decimal]
     gender: str
     created_at: datetime
+    updated_at: datetime
+
