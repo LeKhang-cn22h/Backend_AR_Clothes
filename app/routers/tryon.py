@@ -443,3 +443,33 @@ async def get_tryon_history(
             for r in records
         ],
     }
+# ══════════════════════════════════════════════════════════════════════════════
+# GET /tryon/history/admin — admin xem toàn bộ history
+# ══════════════════════════════════════════════════════════════════════════════
+
+@router.get("/history/admin")
+async def get_all_tryon_history(
+    limit:  int = Query(default=20, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin — xem toàn bộ tryon history của tất cả users."""
+    repo    = TryonHistoryRepository(db)
+    records = await repo.get_all(limit=limit, offset=offset)
+    total   = await repo.count_all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": [
+            {
+                "id":               r.id,
+                "user_id":          r.user_id,
+                "garment_id":       r.garment_id,
+                "result_image_url": r.result_image_url,
+                "cloth_type":       r.cloth_type,
+                "created_at":       r.created_at.isoformat(),
+            }
+            for r in records
+        ],
+    }
