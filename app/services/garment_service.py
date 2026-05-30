@@ -66,7 +66,11 @@ async def get_garments_by_firestore_id(
 
 
 async def get_all_garments(db: AsyncSession) -> list[Garment]:
-    result = await db.execute(select(Garment).order_by(Garment.id))
+    result = await db.execute(
+        select(Garment)
+        .where(Garment.is_deleted == False)
+        .order_by(Garment.id)
+    )
     return result.scalars().all()
 
 
@@ -126,12 +130,14 @@ async def delete_garment(db: AsyncSession, garment_id: int) -> dict:
 
 async def get_lens_link(db: AsyncSession, garment_id: int) -> dict:
     garment = await get_garment_by_id(db, garment_id)
+    item_index=garment.item_index or 0
     lens_url = (
         f"https://www.snapchat.com/lens/{LENS_ID}"
         f"&product_id={garment.id}"
-        f"&item_index={garment.item_index or 0}"
+        f"&item_index={item_index}"
     )
     return {
         "lens_url": lens_url,
         "product_id": garment.id,
+        "item_index": item_index,
     }

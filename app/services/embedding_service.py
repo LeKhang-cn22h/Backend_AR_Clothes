@@ -1,21 +1,17 @@
 """
 embedding_service.py
 - Đọc sản phẩm từ Firebase
-- Embed bằng nomic-embed-text (text) và nomic-embed-vision (image)
+- Embed bằng nomic-embed-text (text only)
 - Lưu vào Neon qua pgvector
 """
 import json
-import base64
-import httpx
 import ollama
 import firebase_admin
 import os
 from firebase_admin import credentials, firestore as fs
 from repositories.embedding_repository import EmbeddingRepository
 
-
-TEXT_MODEL  = "nomic-embed-text"
-IMAGE_MODEL = "nomic-embed-vision"
+TEXT_MODEL = "nomic-embed-text"
 
 
 def _get_firestore():
@@ -55,19 +51,6 @@ def build_text_input(data: dict) -> str:
     return " | ".join(parts)
 
 
-def embed_image_from_url(image_url: str) -> list[float] | None:
-    """Download ảnh → base64 → embed bằng nomic-embed-vision. Dùng cho sync_all_products."""
-    try:
-        r = httpx.get(image_url, timeout=15)
-        r.raise_for_status()
-        b64 = base64.b64encode(r.content).decode()
-        resp = ollama.embed(model=IMAGE_MODEL, input=b64)
-        return resp["embeddings"][0]
-    except Exception as e:
-        print(f"[embed_image] lỗi {image_url}: {e}")
-        return None
-
-
 async def sync_all_products(repo: EmbeddingRepository) -> dict:
     db_fs = _get_firestore()
     docs  = db_fs.collection("products").stream()
@@ -78,7 +61,6 @@ async def sync_all_products(repo: EmbeddingRepository) -> dict:
     for doc in docs:
         try:
             data   = doc.to_dict()
-            pid    = doc.id
             name   = data.get("name", "")
             brand  = data.get("brand", "")
             price  = data.get("price", 0)
@@ -88,18 +70,14 @@ async def sync_all_products(repo: EmbeddingRepository) -> dict:
             text_vec   = embed_text(text_input)
             print(f"[sync] text_input: {text_input[:80]}")
 
-            image_vec = None
-            if images:
-                image_vec = embed_image_from_url(images[0])
-
             await repo.upsert({
-                "firestore_product_id": pid,
-                "name":            name,
-                "brand":           brand,
-                "price":           price,
-                "images_json":     json.dumps(images),
-                "text_embedding":  text_vec,
-                "image_embedding": image_vec,
+                "firestore_product_id": doc.id,
+                "name":           name,
+                "brand":          brand,
+                "price":          price,
+                "images_json":    json.dumps(images),
+                "text_embedding": text_vec,
+                "image_embedding": None,
             })
             success += 1
             print(f"[sync] ✓ {name[:50]}")

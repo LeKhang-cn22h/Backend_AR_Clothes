@@ -54,8 +54,11 @@ def _make_client() -> httpx.Client:
     return httpx.Client(
         timeout=httpx.Timeout(connect=10.0, read=REQUEST_TIMEOUT_S, write=30.0, pool=5.0),
         follow_redirects=True,
+        headers={
+            "ngrok-skip-browser-warning": "true",  
+            "Content-Type": "application/json",
+        }
     )
-
 
 # ── Public Interface ──────────────────────────────────────────────────────────
 
@@ -194,7 +197,7 @@ async def try_on_from_pil_async(
 
     # ── Bước 1: Submit job — response về ngay trong 1s ────────────────────────
     submit_timeout = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=5.0)
-    async with httpx.AsyncClient(timeout=submit_timeout, follow_redirects=True) as client:
+    async with httpx.AsyncClient(timeout=submit_timeout, follow_redirects=True, headers={"ngrok-skip-browser-warning": "true"}) as client:
         try:
             resp = await client.post(f"{base_url}/submit", json=payload)
         except Exception as e:
@@ -214,7 +217,7 @@ async def try_on_from_pil_async(
         await asyncio.sleep(poll_interval)
         waited += poll_interval
         try:
-            async with httpx.AsyncClient(timeout=poll_timeout, follow_redirects=True) as client:
+            async with httpx.AsyncClient(timeout=poll_timeout, follow_redirects=True,headers={"ngrok-skip-browser-warning": "true"}) as client:
                 resp = await client.get(f"{base_url}/status/{job_id}")
         except Exception as e:
             logger.warning(f"[{req_id}] Poll error (retry): {e}")

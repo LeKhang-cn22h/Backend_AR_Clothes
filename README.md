@@ -65,7 +65,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 cd D:\Backend_AR_Clothes
 .\start_dev.ps1
-
+& "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:3000
 ## API Endpoints
 
 | Method | URL | Mô tả |

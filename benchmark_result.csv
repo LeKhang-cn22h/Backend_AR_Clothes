@@ -1,0 +1,6 @@
+compare_to,target,SSIM,PSNR,LPIPS
+20_steps,25_steps,0.9976,48.6099,0.0002
+20_steps,10_steps_1,0.7816,12.7236,0.3543
+20_steps,10_steps_2,0.7815,12.7236,0.3545
+20_steps,10_steps_3,0.7816,12.7235,0.3545
+20_steps,10_steps_4,0.7815,12.7235,0.3546

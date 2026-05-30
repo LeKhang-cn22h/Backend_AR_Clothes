@@ -33,7 +33,7 @@ from routers.chatbot import router as chatbot_router
 from routers.payment import router as payment_router
 from routers.fit_router import router as fit_router
 from routers.body_profiles import router as body_profiles_router
-
+from routers.lens import router as lens_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,7 +66,7 @@ app.include_router(chatbot_router)
 app.include_router(payment_router)
 app.include_router(fit_router)
 app.include_router(body_profiles_router)
-
+app.include_router(lens_router)
 
 @app.get("/health")
 def health():
@@ -76,6 +76,9 @@ def health():
         "fitdit_available": fitdit_service.is_available(),
         "fitdit_url": fitdit_service._get_base_url(),
     }
+@app.get("/api/lens-params")
+def get_lens_params(item_index: int = 0):
+    return {"item_index": item_index}
 
 
 if __name__ == "__main__":

@@ -46,3 +46,4 @@ class GarmentResponse(BaseModel):
 class LensLinkResponse(BaseModel):
     lens_url: str
     product_id: int
+    item_index: Optional[int] = None
