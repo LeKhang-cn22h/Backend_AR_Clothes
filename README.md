@@ -55,16 +55,12 @@ Xem file `SETUP.md` để biết hướng dẫn cài đặt từng bước.
 
 ```powershell
 # Activate venv
+## lệnh chạy be 3 dòng
 .\venv\Scripts\Activate.ps1
-
-# Download models (chỉ chạy lần đầu, ~5GB)
-python download_models.py
-
-# Start server
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
 cd D:\Backend_AR_Clothes
 .\start_dev.ps1
+
+
 & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:3000
 ## API Endpoints
 
