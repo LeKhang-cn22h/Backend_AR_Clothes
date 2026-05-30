@@ -9,6 +9,7 @@ from core.database import get_db
 from repositories.store_repository import StoreRepository
 from schemas.store import StoreCreate, StoreResponse, StoreUpdate
 from services.store_service import StoreService
+from core.limiter import limiter
 
 router = APIRouter(prefix="/stores", tags=["stores"])
 
@@ -18,6 +19,7 @@ def get_store_service(db: AsyncSession = Depends(get_db)) -> StoreService:
 
 
 @router.post("", response_model=StoreResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("120/minute")
 async def create_store(
     payload: StoreCreate,
     service: StoreService = Depends(get_store_service),
@@ -26,6 +28,7 @@ async def create_store(
 
 
 @router.get("", response_model=list[StoreResponse])
+@limiter.limit("120/minute")
 async def list_stores(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=10, ge=1, le=100),
@@ -36,6 +39,7 @@ async def list_stores(
 
 
 @router.get("/{id}", response_model=StoreResponse)
+@limiter.limit("120/minute")
 async def get_store(
     id: uuid.UUID,
     service: StoreService = Depends(get_store_service),
@@ -44,6 +48,7 @@ async def get_store(
 
 
 @router.patch("/{id}", response_model=StoreResponse)
+@limiter.limit("120/minute")
 async def update_store(
     id: uuid.UUID,
     payload: StoreUpdate,
@@ -53,6 +58,7 @@ async def update_store(
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("120/minute")
 async def delete_store(
     id: uuid.UUID,
     service: StoreService = Depends(get_store_service),

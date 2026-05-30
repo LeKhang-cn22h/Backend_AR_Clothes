@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from schemas.garment import GarmentCreate, GarmentUpdate, GarmentResponse, LensLinkResponse
 import services.garment_service as svc
+from core.limiter import limiter
 
 router = APIRouter(prefix="/garments", tags=["Garments"])
 
 
 @router.post("/", response_model=GarmentResponse, status_code=201)
+@limiter.limit("20/minute")
 async def create(
     name: str = Form(...),
     description: Optional[str] = Form(None),
@@ -36,11 +38,13 @@ async def create(
 
 
 @router.get("/", response_model=list[GarmentResponse])
+@limiter.limit("120/minute")
 async def get_all(db: AsyncSession = Depends(get_db)):
     return await svc.get_all_garments(db)
 
 
 @router.get("/by-product/{firestore_product_id}", response_model=list[GarmentResponse])
+@limiter.limit("120/minute")
 async def get_by_firestore_product(
     firestore_product_id: str,
     db: AsyncSession = Depends(get_db),
@@ -54,11 +58,13 @@ async def get_by_firestore_product(
 
 
 @router.get("/{garment_id}", response_model=GarmentResponse)
+@limiter.limit("120/minute")
 async def get_one(garment_id: int, db: AsyncSession = Depends(get_db)):
     return await svc.get_garment_by_id(db, garment_id)
 
 
 @router.put("/{garment_id}", response_model=GarmentResponse)
+@limiter.limit("20/minute")
 async def update(
     garment_id: int,
     name: Optional[str] = Form(None),
@@ -84,10 +90,12 @@ async def update(
 
 
 @router.delete("/{garment_id}")
+@limiter.limit("20/minute")
 async def delete(garment_id: int, db: AsyncSession = Depends(get_db)):
     return await svc.delete_garment(db, garment_id)
 
 
 @router.get("/{garment_id}/lens-link", response_model=LensLinkResponse)
+@limiter.limit("120/minute")
 async def lens_link(garment_id: int, db: AsyncSession = Depends(get_db)):
     return await svc.get_lens_link(db, garment_id)

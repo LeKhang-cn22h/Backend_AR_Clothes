@@ -2,6 +2,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 import services.cloudinary_service as cloud
+from core.limiter import limiter
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -9,6 +10,7 @@ DEFAULT_FOLDER = "tryon_results"
 
 
 @router.get("")
+@limiter.limit("120/minute")
 def list_images(
     folder: str = Query(default=DEFAULT_FOLDER),
     max_results: int = Query(default=50, ge=1, le=500),
@@ -20,6 +22,7 @@ def list_images(
 
 
 @router.get("/{public_id:path}")
+@limiter.limit("120/minute")
 def get_image(public_id: str):
     try:
         return cloud.get_image(public_id)
@@ -28,6 +31,7 @@ def get_image(public_id: str):
 
 
 @router.delete("")
+@limiter.limit("20/minute")
 def delete_all_images(folder: str = Query(default=DEFAULT_FOLDER)):
     try:
         return cloud.delete_all_images(folder=folder)
@@ -36,6 +40,7 @@ def delete_all_images(folder: str = Query(default=DEFAULT_FOLDER)):
 
 
 @router.delete("/{public_id:path}")
+@limiter.limit("20/minute")
 def delete_image(public_id: str):
     try:
         return cloud.delete_image(public_id)

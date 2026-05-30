@@ -6,6 +6,7 @@ from repositories.body_profile_repository import BodyProfileRepository
 from repositories.user_repository import UserRepository
 from schemas.body_profile import BodyProfileCreate, BodyProfileResponse
 from services.body_profile_service import BodyProfileService
+from core.limiter import limiter
 
 router = APIRouter(prefix="/body-profiles", tags=["Body Profiles"])
 
@@ -18,6 +19,7 @@ def get_service(db: AsyncSession = Depends(get_db)) -> BodyProfileService:
 
 
 @router.get("", response_model=BodyProfileResponse | None)
+@limiter.limit("120/minute")
 async def get_body_profile(
     user_id: int = Query(..., gt=0),
     svc: BodyProfileService = Depends(get_service),
@@ -27,6 +29,7 @@ async def get_body_profile(
 
 
 @router.post("", response_model=BodyProfileResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
 async def create_or_update_body_profile(
     user_id: int = Query(..., gt=0),
     payload: BodyProfileCreate = ...,

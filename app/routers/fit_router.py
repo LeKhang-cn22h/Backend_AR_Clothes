@@ -21,6 +21,7 @@ from core.database import get_db
 from repositories.body_profile_repository import BodyProfileRepository
 from repositories.garment_size_spec_repository import GarmentSizeSpecRepository
 from services.fit_assessment_service import FitAssessmentService
+from core.limiter import limiter
 
 router = APIRouter(prefix="/fit", tags=["fit"])
 
@@ -121,6 +122,7 @@ class SizeSpecIn(BaseModel):
 # ══════════════════════════════════════════════════════════════════════════════
 
 @router.post("/suggest")
+@limiter.limit("30/minute")
 async def suggest_size(
     body: SuggestRequest,
     db: AsyncSession = Depends(get_db),
@@ -168,6 +170,7 @@ async def suggest_size(
 
 
 @router.get("/garment/{garment_id}/sizes")
+@limiter.limit("120/minute")
 async def get_garment_sizes(
     garment_id: int,
     db: AsyncSession = Depends(get_db),
@@ -185,6 +188,7 @@ async def get_garment_sizes(
 
 
 @router.put("/garment/{garment_id}/sizes")
+@limiter.limit("30/minute")
 async def upsert_garment_sizes(
     garment_id: int,
     sizes: list[SizeSpecIn],

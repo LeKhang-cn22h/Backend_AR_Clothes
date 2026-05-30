@@ -4,6 +4,7 @@ from core.database import get_db
 from repositories.user_repository import UserRepository
 from schemas.user import UserCreate, UserUpdate, UserResponse
 from services.user_service import UserService
+from core.limiter import limiter
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -13,11 +14,13 @@ def get_service(db: AsyncSession = Depends(get_db)) -> UserService:
 
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 async def create_or_upsert(payload: UserCreate, service: UserService = Depends(get_service)):
     return await service.upsert(payload)
 
 
 @router.get("", response_model=list[UserResponse])
+@limiter.limit("120/minute")
 async def get_all(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
@@ -27,15 +30,18 @@ async def get_all(
 
 
 @router.get("/by-uid/{firebase_uid}", response_model=UserResponse)
+@limiter.limit("120/minute")
 async def get_by_uid(firebase_uid: str, service: UserService = Depends(get_service)):
     return await service.get_by_firebase_uid(firebase_uid)
 
 
 @router.get("/{id}", response_model=UserResponse)
+@limiter.limit("120/minute")
 async def get_one(id: int, service: UserService = Depends(get_service)):
     return await service.get_by_id(id)
 
 @router.get("/by-firebase-uid/{firebase_uid}")
+@limiter.limit("120/minute")
 async def get_by_firebase_uid(
     firebase_uid: str,
     db: AsyncSession = Depends(get_db),
@@ -49,10 +55,12 @@ async def get_by_firebase_uid(
 
 
 @router.patch("/{id}", response_model=UserResponse)
+@limiter.limit("30/minute")
 async def update(id: int, payload: UserUpdate, service: UserService = Depends(get_service)):
     return await service.update(id, payload)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("30/minute")
 async def delete(id: int, service: UserService = Depends(get_service)):
     await service.delete(id)

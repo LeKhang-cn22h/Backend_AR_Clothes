@@ -7,6 +7,7 @@ from core.database import get_db
 from repositories.review_repository import ReviewRepository
 from schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse, ReviewStatsResponse
 from services.review_service import ReviewService
+from core.limiter import limiter
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -26,6 +27,7 @@ def parse_media_urls(raw: Optional[str]) -> Optional[list[str]]:
 
 # ── POST ─────────────────────────────────────────────────────────
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("120/minute")
 async def create(payload: ReviewCreate, service: ReviewService = Depends(get_service)):
     review = await service.create(payload)
     return ReviewResponse(
@@ -43,6 +45,7 @@ async def create(payload: ReviewCreate, service: ReviewService = Depends(get_ser
 
 # ── GET /product/{id}/stats ───────────────────────────────────────
 @router.get("/product/{firestore_product_id}/stats", response_model=ReviewStatsResponse)
+@limiter.limit("120/minute")
 async def get_product_stats(
     firestore_product_id: str,
     service: ReviewService = Depends(get_service),
@@ -52,6 +55,7 @@ async def get_product_stats(
 
 # ── GET /product/{id} ─────────────────────────────────────────────
 @router.get("/product/{firestore_product_id}", response_model=list[ReviewResponse])
+@limiter.limit("120/minute")
 async def get_by_product(
     firestore_product_id: str,
     page: int = Query(default=1, ge=1),
@@ -68,6 +72,7 @@ async def get_by_product(
 
 # ── GET /check-purchase/{id} ──────────────────────────────────────
 @router.get("/check-purchase/{firestore_product_id}")
+@limiter.limit("120/minute")
 async def check_purchase(
     firestore_product_id: str,
     user_id: int = Query(...),
@@ -79,6 +84,7 @@ async def check_purchase(
 
 # ── GET /my-review/{id} ───────────────────────────────────────────
 @router.get("/my-review/{firestore_product_id}", response_model=Optional[ReviewResponse])
+@limiter.limit("120/minute")
 async def get_my_review(
     firestore_product_id: str,
     user_id: int = Query(...),
@@ -102,6 +108,7 @@ async def get_my_review(
 
 # ── GET all ───────────────────────────────────────────────────────
 @router.get("", response_model=list[ReviewResponse])
+@limiter.limit("120/minute")
 async def get_all(
     firestore_product_id: Optional[str] = Query(default=None),
     user_id: Optional[int] = Query(default=None),
@@ -121,6 +128,7 @@ async def get_all(
 
 # ── GET /{id} ─────────────────────────────────────────────────────
 @router.get("/{id}", response_model=ReviewResponse)
+@limiter.limit("120/minute")
 async def get_one(id: int, service: ReviewService = Depends(get_service)):
     review = await service.get_by_id(id)
     return ReviewResponse(
@@ -138,6 +146,7 @@ async def get_one(id: int, service: ReviewService = Depends(get_service)):
 
 # ── PUT /{id} ─────────────────────────────────────────────────────
 @router.put("/{id}", response_model=ReviewResponse)
+@limiter.limit("120/minute")
 async def update(
     id: int,
     payload: ReviewUpdate,
@@ -159,5 +168,6 @@ async def update(
 
 # ── DELETE /{id} ──────────────────────────────────────────────────
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("120/minute")
 async def delete(id: int, service: ReviewService = Depends(get_service)):
     await service.delete(id)

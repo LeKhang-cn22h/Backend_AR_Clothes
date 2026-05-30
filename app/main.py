@@ -20,6 +20,10 @@ from starlette.requests import Request
 from config import settings
 from dependencies import init_service
 from core.database import init_db
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from core.limiter import limiter
 
 from routers.tryon import router as tryon_router
 from routers.images import router as images_router
@@ -43,7 +47,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Virtual Try-On API", lifespan=lifespan)
 
-
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 class NgrokHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
@@ -52,6 +57,7 @@ class NgrokHeaderMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(NgrokHeaderMiddleware)
 
 app.include_router(tryon_router)

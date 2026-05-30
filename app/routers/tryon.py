@@ -35,6 +35,7 @@ from repositories.garment_repository import GarmentRepository
 from repositories.tryon_history_repository import TryonHistoryRepository
 import services.fitdit_service as fitdit_service
 import services.cloudinary_service as cloud
+from core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -249,6 +250,7 @@ async def _run_tryon_job(
 # ══════════════════════════════════════════════════════════════════════════════
 
 @router.post("")
+@limiter.limit("10/minute")
 async def tryon(
     background_tasks: BackgroundTasks,
     person:     UploadFile,
@@ -301,6 +303,7 @@ async def tryon(
 # ══════════════════════════════════════════════════════════════════════════════
 
 @router.post("/catalog")
+@limiter.limit("10/minute")
 async def tryon_catalog(
     background_tasks: BackgroundTasks,
     person:     UploadFile,
@@ -420,6 +423,7 @@ def get_tryon_status(job_id: str):
 # ══════════════════════════════════════════════════════════════════════════════
 
 @router.get("/history")
+@limiter.limit("120/minute")
 async def get_tryon_history(
     user_id: int = Query(..., gt=0),
     limit:   int = Query(default=20, le=100),
@@ -448,6 +452,7 @@ async def get_tryon_history(
 # ══════════════════════════════════════════════════════════════════════════════
 
 @router.get("/history/admin")
+@limiter.limit("120/minute")
 async def get_all_tryon_history(
     limit:  int = Query(default=20, le=100),
     offset: int = Query(default=0, ge=0),

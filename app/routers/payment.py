@@ -5,6 +5,7 @@ from app.services.payment_service import PaymentService
 from app.schemas.payment import StripeCreateRequest, StripeCreateResponse
 from app.config import settings
 import stripe
+from core.limiter import limiter
 
 router = APIRouter(prefix="/payment", tags=["payment"])
 
@@ -12,11 +13,13 @@ def get_service():
     return PaymentService(PaymentRepository())
 
 @router.post("/stripe/create", response_model=StripeCreateResponse)
+@limiter.limit("120/minute")
 async def create_stripe_payment(req: StripeCreateRequest):
     service = get_service()
     return await service.create_stripe_session(req)
 
 @router.get("/stripe/success")
+@limiter.limit("120/minute")
 async def stripe_success(session_id: str, orderId: str):
     service = get_service()
     result = await service.handle_success(session_id, orderId)
@@ -31,13 +34,13 @@ async def stripe_success(session_id: str, orderId: str):
         status_code=302
     )
 @router.get("/stripe/payments")
+@limiter.limit("120/minute")
 async def get_stripe_payments(limit: int = Query(default=10, le=100)):
     stripe.api_key = settings.STRIPE_SECRET_KEY
     payment_intents = stripe.PaymentIntent.list(limit=limit)
 
     result = []
     for p in payment_intents.data:
-        # ✅ Dùng dict() để convert metadata sang Python dict thông thường
         metadata = dict(p.metadata) if p.metadata else {}
         order_id = metadata.get("order_id", "")
 
@@ -66,11 +69,11 @@ async def get_stripe_payments(limit: int = Query(default=10, le=100)):
 
     return {"data": result, "total": len(result)}
 @router.get("/stripe/payments/{payment_intent_id}")
+@limiter.limit("120/minute")
 async def get_stripe_payment_detail(payment_intent_id: str):
     stripe.api_key = settings.STRIPE_SECRET_KEY
     try:
         p = stripe.PaymentIntent.retrieve(payment_intent_id)
-        # ✅ Convert metadata
         metadata = dict(p.metadata) if p.metadata else {}
         order_id = metadata.get("order_id", "")
 
